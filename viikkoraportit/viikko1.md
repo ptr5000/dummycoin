@@ -7,6 +7,6 @@ mitä tästä tulee. Ajattelin rajata aluetta aluksi sen verran, että blockchai
 
 Algoritmeista. Tässä tarvitaan joku hash-funktio. Niiden implementointi ei vain
 ole kovin mielekästä. Ajattelin, että joku simppeli voisi riittää tässä tapauksessa esim SHA-1. SHA-256 on jo sen verran
-sekava, että se olisi vain copy-pastea eikä välttämättä kovin hyödyllinen oppimismielessä. Kieleksi valitsen todennäköisesit Pythonin, täytyy vielä vähän funtsia. Blockchain on vähän kuin linkitetty lista ja oikeastaan todella simppeli. Mietin myös, että onko OK käyttää esim. valmista JSON-parseria jos transaktiot olisivat JSON-dokumentteja vai pitäiskö se kirjotella itse? Base64 tarvitaan, se on aika helppo. Koko signaus prosessi on vielä vähän auki. 
+sekava, että se olisi vain copy-pastea eikä välttämättä kovin hyödyllinen oppimismielessä. Kieleksi valitsen todennäköisesit Pythonin, täytyy vielä vähän funtsia. Blockchain on vähän kuin linkitetty lista ja oikeastaan todella simppeli. Mietin myös, että onko OK käyttää esim. valmista JSON-parseria jos transaktiot olisivat JSON-dokumentteja vai pitäiskö se kirjotella itse? Base64 tarvitaan, se on aika helppo. Koko signaus prosessi on vielä vähän auki, joku satunnaislukugeneraattori ja RSA varmaan tarvitaan. 
 
 Bitcoin: A Peer-to-Peer Electronic Cash System https://bitcoin.org/bitcoin.pdf
