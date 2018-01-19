@@ -13,9 +13,13 @@ Implementaatio pohjautuu Bitcoinin alkuperäiseen paperiin Bitcoin: A Peer-to-Pe
 Käytettyjä käsitteitä:
 
 *Lohko*: Lohko sisältää viittauksen edelliseen lohkoon. 
+
 *Ketju*: Lohkot muodostavat viittauksilla ketjun. Ketjun ensimmäinen lohko on ns. genesis lohko. Se ei viittaa mihinkään lohkoon.
+
 *Lohkoketju*: Sisältää listan louhituista lohkoista eli transaktioista. 
+
 *Transaktio*: Transaktio on käytännössä arvon siirtoa. Se pitää sisällään kuinka paljon arvoa siirretään. Transaktio sijoitetaan lohkoon. 
+
 *Louhiminen*: Louhimisella varmistetaan transaktioiden oikeellisuus, tätä kautta lohkot päätyvät lohkoketjuun.
 
 ## 3. Toiminnalliset vaatimukset
@@ -23,8 +27,11 @@ Käytettyjä käsitteitä:
 Korkean tason toiminnalliset vaatimukset prioriteettijärjestyksessä
 
 **D-1** Valuuttaa tulee pystyä siirtämään "lompakosta" x "lompakkoon" y (transaktiot) 
+
 **D-2** Lohkoketjun (blockchain) tulee tarjota mahdollisuus transaktioiden tallentamiseen. 
+
 **D-3** Lohkoketjun tulee tarjota mahdollisuus varmistaa transaktioiden oikeellisuus. 
+
 **D-4** Sovelluksen tulee tarjota HTTP-rajapinta transaktioille käyttöliittymää varten. 
 
 ## 3. Implementoitavat algoritmit
@@ -49,7 +56,10 @@ Muilta osin testaus tapahtuu integraatiotestien kautta.
 ## X. Lähteet
 
 [1] Bitcoin: A Peer-to-Peer Electronic Cash System, Satoshi Nakamoto, 2008
+
 [2] Blockchain, Wikipedia, https://en.wikipedia.org/wiki/Blockchain [19.1.2018]
+
 [3] Transaction, bitcoinwiki, https://en.bitcoin.it/wiki/Transaction [19.1.2018]
+
 [4] Naivecoin - A cryptocurrency implementation in less than 1500 lines of code, GitHub, https://github.com/conradoqg/naivecoin
 
