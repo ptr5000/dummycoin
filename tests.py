@@ -1,7 +1,8 @@
 
 import unittest
 
-from tests.transaction import TransactionTest
+from tests.utils import UtilsTest
+from tests.blockchain import BlockchainTest
 
 if __name__ == '__main__':
     unittest.main()
