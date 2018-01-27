@@ -2,15 +2,13 @@
 from utils import sha1
 
 class Block:
-	prev = None
-	nonce = None
-	index = 0
-	transactions = []
-	hash = None
-
 	def __init__(self, prev):
 		self.prev = prev
-
+		self.transactions = []
+		self.nonce = None
+		self.index = 0
+		self.hash = None
+		
 		# This is the genesis block.
 		if prev is None:
 			self.finalize() 
@@ -25,11 +23,9 @@ class Block:
 		transactions.append(transaction)
 
 class Blockchain:
-	chain = [Block(None)]
-	pending_tx = []
-
 	def __init__(self):
-		pass
+		self.chain = [Block(None)]
+		self.pending_tx = []
 
 	def add(self, transaction):
 		"""
@@ -73,7 +69,7 @@ class Blockchain:
 
 		while len(self.pending_tx) > 0:
 			tx = self.pending_tx.pop()
-
+		
 			# TODO: check for double spending etc.
 			newb.transactions.append(tx)
 		
