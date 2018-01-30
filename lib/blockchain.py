@@ -23,7 +23,7 @@ class Block:
 		transactions.append(transaction)
 
 	def get_transactions(self, address):
-		return map(lambda x:x.get_outputs(address), self.transactions)
+		return map(lambda x:x.get_ledger(address), self.transactions)
 		
 class Blockchain:
 	def __init__(self):
@@ -55,8 +55,7 @@ class Blockchain:
 		given owner address. 
 		"""
 		utxo = map(lambda x:x.get_transactions(address), self.chain)
-		utxo.extend(map(lambda x:x.get_outputs(address), self.pending_tx))
-		
+		utxo.extend(map(lambda x:x.get_ledger(address), self.pending_tx))
 		return reduce(list.__add__, utxo)
 
 	def get_genesis_block(self):

@@ -4,7 +4,7 @@ Transactions
 References:
 
 https://bitcoin.org/en/developer-guide#transactions
-http://chimera.labs.oreilly.com/books/1234000001802/ch02.html#_bitcoin_transactions
+https://github.com/bitcoinbook/bitcoinbook/blob/second_edition/ch02.asciidoc
 
 """
 from datetime import datetime
@@ -27,11 +27,11 @@ class TxOut:
 		return "{}{}".format(self.value, self.address)
 
 class TxIn:
-	def __init__(self, prev_outtx):
+	def __init__(self, prev_outtx, address, value):
 		self.prev_outtx = prev_outtx
 		self.signature = None
 		self.address = address
-
+		self.value = value
 
 	def get_state(self):
 		return self.prev_outtx
@@ -62,15 +62,24 @@ class Transaction:
 	def add_out(self, value, to_address):
 		self.outputs.append(TxOut(value, to_address))
 	
-	def add_in(self, prev_outtx):
-		self.inputs.append(TxIn(prev_outtx))
+	def add_in(self, prev_outtx, from_address, value):
+		self.inputs.append(TxIn(prev_outtx, from_address, value))
 
-	def get_involvement(self, address):
+	def get_ledger(self, address):
 		"""
 		Return outputs by address.
 		"""
-		return map(lambda x: {'hash': self.hash, 'value': x.value}, 
+		ledger = []
+
+		debit = map(lambda x: {'hash': self.hash, 'value': x.value}, 
 				filter(lambda x:x.address == address, self.outputs))
+		credit = map(lambda x: {'hash': self.hash, 'value': -x.value}, 
+				filter(lambda x:x.address == address, self.inputs))
+
+		ledger.extend(debit)
+		ledger.extend(credit)
+		
+		return ledger
 	
 	def __unicode__(self):
 		return self.hash
@@ -96,7 +105,7 @@ class Transfer:
 			raise InsufficientFundsException()
 
 		for credit in utxo:
-			tx.add_in(credit['hash'])
+			tx.add_in(credit['hash'], self.sender_key.publickey(), credit['value'])
 
 		tx.add_out(self.amount, self.to_addr)
 		tx.add_out(change, self.sender_key.publickey())
