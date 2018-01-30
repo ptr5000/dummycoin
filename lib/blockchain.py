@@ -19,9 +19,12 @@ class Block:
 			.format(self.prev, self.index, self.nonce)
 			.join(tx))
 
-	def add_transaction(transaction):
+	def add_transaction(self, transaction):
 		transactions.append(transaction)
 
+	def get_transactions(self, address):
+		return map(lambda x:x.get_outputs(address), self.transactions)
+		
 class Blockchain:
 	def __init__(self):
 		self.chain = [Block(None)]
@@ -46,12 +49,15 @@ class Blockchain:
 		"""
 		pass
 
-	def fetch_transactions(self, addr):
+	def scan_unspent_transactions(self, address):
 		"""
-		Return all the transactions from the blockchain by
+		Scan all the transactions from the blockchain and pending transactions by
 		given owner address. 
 		"""
-		pass
+		utxo = map(lambda x:x.get_transactions(address), self.chain)
+		utxo.extend(map(lambda x:x.get_outputs(address), self.pending_tx))
+		
+		return reduce(list.__add__, utxo)
 
 	def get_genesis_block(self):
 		"""
