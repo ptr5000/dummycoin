@@ -59,12 +59,7 @@ class Transaction:
         self.hash = sha1("".join(vin).join(vout))
         
         self.signature = sign(self.priv_key, self.hash)
-        
-        """
-        for input in self.inputs:
-            input.signature = self.signature
-        """
-
+      
     def add_out(self, value, to_address):
         self.outputs.append(TxOut(value, to_address))
     

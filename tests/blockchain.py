@@ -107,6 +107,8 @@ class BlockchainTest(unittest.TestCase):
         debit = sum(map(lambda x:x['value'], utxo))
 
         for credit in utxo:
+            # TODO: can we forge the signature here? What happens if we do?
+            # Does it fail when we mine the block and verify it? 
             tx.add_in(credit['hash'], credit['signature'], victim.publickey(), credit['value'])
 
         tx.add_out(debit, perpetrator.publickey())
