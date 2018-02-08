@@ -48,6 +48,7 @@ def is_prime(n, s=10):
         for i in range(0, t):
             xp = x
             x = pow(x, 2) % n
+            
             if x == 1 and xp != 1 and xp != n - 1:
                 return True
         
@@ -66,13 +67,13 @@ def is_prime(n, s=10):
 
 def get_random_large_prime():
     while 1:
-        a = randrange(100000, 10000000)
+        a = randrange(10000000, 900000000)
 
         if is_prime(a):
-            return a
+            break
 
+    print "Found prime: ", a
     return a
-    
 
 class RSAPublicKey:
     def __init__(self, e, n):
@@ -99,7 +100,8 @@ class RSAKey:
                 p = get_random_large_prime()
                 q = get_random_large_prime()
                 d = long(mul_inv(e, (p-1) * (q-1)))
-                rp = True
+                
+                rp = d % 2 != 0
             except ValueError:
                 pass
         
@@ -131,6 +133,7 @@ class RSAKey:
 if __name__ == '__main__':
     #print mod_exp(7, 560000000000000000000000000000000000, 561000000000000000000000000000000000)
 
+    """
     print get_random_large_prime()
     print get_random_large_prime()
     print get_random_large_prime()
@@ -142,9 +145,17 @@ if __name__ == '__main__':
     print is_prime(7690)
   
     print mod_exp(7, 560, 561)
-    
+    """
+
+    bug1 = 93128803
+    bug2 = 272489629
+
+    d = long(mul_inv(17, (bug1-1) * (bug2-1)))
+
+    print "d", d
+
     key = RSAKey.generate_key()
-  
+    
     ver = key.verify("Jorma", key.sign("Jorma"))
 
     print ver
