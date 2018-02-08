@@ -67,7 +67,7 @@ def is_prime(n, s=10):
 
 def get_random_large_prime():
     while 1:
-        a = randrange(10000000, 900000000)
+        a = randrange(100000000000, 90000000000000)
 
         if is_prime(a):
             break
