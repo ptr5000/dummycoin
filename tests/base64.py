@@ -1,16 +1,18 @@
 
 import unittest
 
-from lib.base64 import base64
+from lib.base64 import Base64
 
 class Base64Test(unittest.TestCase):
 
     def test_vectors(self):
-        self.assertEqual(base64(""), "")
-        self.assertEqual(base64("f"), "Zg==")
-        self.assertEqual(base64("fo"), "Zm8=")
-        self.assertEqual(base64("foo"), "Zm9v")
-        self.assertEqual(base64("foob"), "Zm9vYg==")
-        self.assertEqual(base64("fooba"), "Zm9vYmE=")
-        self.assertEqual(base64("foobar"), "Zm9vYmFy")
+        b64 = Base64()
+
+        self.assertEqual(b64.encode(""), "")
+        self.assertEqual(b64.encode("f"), "Zg==")
+        self.assertEqual(b64.encode("fo"), "Zm8=")
+        self.assertEqual(b64.encode("foo"), "Zm9v")
+        self.assertEqual(b64.encode("foob"), "Zm9vYg==")
+        self.assertEqual(b64.encode("fooba"), "Zm9vYmE=")
+        self.assertEqual(b64.encode("foobar"), "Zm9vYmFy")
    
