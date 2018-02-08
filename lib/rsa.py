@@ -1,5 +1,5 @@
 import sys
-from math import floor, log, pow, sqrt
+from math import floor, log, sqrt
 from random import randrange
 
 def egcd(a, b):
@@ -7,7 +7,7 @@ def egcd(a, b):
         return (a, 1, 0)
     else:
         (d,x,y) = egcd(b, a % b)
-        return (d, y, x - floor(a/b) * y)
+        return (d, y, x - long(a/b) * y)
         
 def mul_inv(a, b):
     (d,x,y) = egcd(a,b)
@@ -47,7 +47,7 @@ def is_prime(n, s=10):
 
         for i in range(0, t):
             xp = x
-            x = pow(x, 2) % n
+            x = pow(x, 2, n)
             
             if x == 1 and xp != 1 and xp != n - 1:
                 return True
@@ -67,13 +67,14 @@ def is_prime(n, s=10):
 
 def get_random_large_prime():
     while 1:
-        a = randrange(100000000000, 90000000000000)
-
+        a = randrange(1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000, 
+        
+        9000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000)
+        if a % 2 == 0:
+            continue
+        
         if is_prime(a):
-            break
-
-    print "Found prime: ", a
-    return a
+            return a
 
 class RSAPublicKey:
     def __init__(self, e, n):
@@ -101,7 +102,7 @@ class RSAKey:
                 q = get_random_large_prime()
                 d = long(mul_inv(e, (p-1) * (q-1)))
                 
-                rp = d % 2 != 0
+                rp = True
             except ValueError:
                 pass
         
