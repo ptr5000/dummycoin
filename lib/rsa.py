@@ -124,7 +124,7 @@ class RSAKey:
                     signature)
         except:
             """
-            If we return some random exception, key is definitely invalid.
+            If this raises some random exception, key is definitely invalid.
             """
             return False
         

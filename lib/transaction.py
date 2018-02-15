@@ -8,7 +8,7 @@ https://github.com/bitcoinbook/bitcoinbook/blob/second_edition/ch02.asciidoc
 
 """
 from datetime import datetime
-from utils import sha1, sign
+from utils import sha1, sign, generate_key
 import uuid
 
 class UnauthorizedTxException(Exception):
@@ -43,22 +43,25 @@ class Transaction:
     """
     Transaction is a transfer of coin value. 
     """
-    def __init__(self, priv_key, type=TxType.NORMAL):
+    def __init__(self, priv_key, txtype=TxType.NORMAL):
         self.timestamp = datetime.now()
         self.hash = None
         self.priv_key = priv_key
         self.inputs = []
         self.outputs = []
-        self.type = type
+        self.txtype = txtype
         self.signature = None
+
+        if self.priv_key is None and txtype == TxType.COINBASE:
+            self.priv_key = generate_key()
         
     def finalize(self):
         vin = [i.get_state() for i in self.inputs]
         vout = [o.get_state() for o in self.outputs]
         
         self.hash = sha1("".join(vin).join(vout))
-        
         self.signature = sign(self.priv_key, self.hash)
+        
       
     def add_out(self, value, to_address):
         self.outputs.append(TxOut(value, to_address))
@@ -66,6 +69,9 @@ class Transaction:
     def add_in(self, prev_outtx, signature, from_address, value):
         self.inputs.append(TxIn(prev_outtx, signature, from_address, value))
 
+    def is_coinbase(self):
+        return self.txtype == TxType.COINBASE
+    
     def get_ledger(self, address):
         """
         Return outputs by address.

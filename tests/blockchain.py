@@ -11,8 +11,8 @@ class BlockchainTest(unittest.TestCase):
     def test_pending_transactions(self):
         sender = generate_key()
         receiver = generate_key()
-
-        tx = Transaction(sender, type=TxType.COINBASE)
+       
+        tx = Transaction(None, txtype=TxType.COINBASE)
         tx.add_out(10, receiver.publickey())
 
         blockchain = Blockchain()
@@ -22,12 +22,14 @@ class BlockchainTest(unittest.TestCase):
 
         self.assertEqual(len(filter(lambda x: tx.hash, pending_tx)), 1)
 
-        newb = blockchain.get_new_block()
+        newb = blockchain.create_new_block(receiver.publickey())
 
+        blockchain.add_block(newb)
+        
         pending_tx = blockchain.get_pending_transactions()
 
         self.assertEqual(len(filter(lambda x: tx.hash, pending_tx)), 0)
-        self.assertEqual(len(filter(lambda x: tx.hash, newb.transactions)), 1)
+        self.assertEqual(len(filter(lambda x: tx.hash, newb.transactions)), 2)
         
     def test_value_transfer(self):
         """
@@ -41,8 +43,8 @@ class BlockchainTest(unittest.TestCase):
         sender = generate_key()
         receiver = generate_key()
 
-        # This is an empty blockchain so create value from thin air.
-        tx1 = Transaction(sender, type=TxType.COINBASE)
+        # This is an empty blockchain so create value out of thin air.
+        tx1 = Transaction(sender, txtype=TxType.COINBASE)
         tx1.add_out(SENDER_ORIG_VALUE, sender.publickey())
         blockchain.add(tx1)
         
@@ -68,17 +70,10 @@ class BlockchainTest(unittest.TestCase):
             self.assertEqual(value_owned_by_sender, SENDER_ORIG_VALUE - SEND_AMOUNT*i)
 
         # Create a new block from these transactions and check that they are valid.
-        newb = blockchain.get_new_block()
+        newb = blockchain.create_new_block(receiver.publickey())
 
-        self.assertEqual(len(newb.transactions), 3)
-        
-        """
-        for _tx in newb.transactions:
-            for input in _tx.inputs:
-                self.assertIsNotNone(_tx.hash)
-                self.assertIsNotNone(input.signature)
-                self.assertTrue(verify_sig(sender, input.signature, _tx.hash))
-        """
+        self.assertEqual(len(newb.transactions), 4)
+    
 
     def test_fraudulent_tx(self):
         """
@@ -89,8 +84,8 @@ class BlockchainTest(unittest.TestCase):
         victim = generate_key()
         perpetrator = generate_key()
 
-        # This is an empty blockchain so create value from thin air.
-        victim_tx = Transaction(victim, type=TxType.COINBASE)
+        # This is an empty blockchain so create value out of thin air.
+        victim_tx = Transaction(victim, txtype=TxType.COINBASE)
         victim_tx.add_out(10, victim.publickey())
         blockchain.add(victim_tx)
     

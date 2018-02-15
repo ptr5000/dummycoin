@@ -1,6 +1,8 @@
 
 from utils import sha1, verify_sig
-from transaction import UnauthorizedTxException, TxException
+from transaction import Transaction, UnauthorizedTxException, TxException, TxType
+
+MINING_REWARD = 10
 
 class Block:
     def __init__(self, prev):
@@ -9,6 +11,7 @@ class Block:
         self.nonce = None
         self.index = 0
         self.hash = None
+        self.difficulty = 1
         
         # This is the genesis block.
         if prev is None:
@@ -85,20 +88,35 @@ class Blockchain:
         """
         return self.chain[0]
 
-    def get_new_block(self):
+    def add_block(self, block):
+        """
+        Add new block to blockchain, either through mining or from the network.
+        """
+        top = self.chain[-1]
+        if block.index == top.index + 1 and block.prev == top.hash:
+            self.chain.append(block)
+            
+            # Remove transactions that were added within the block from pending tx list.
+            obsoletes = map(lambda x: x.hash, block.transactions)
+            self.pending_tx = [tx for tx in self.pending_tx if tx.hash not in obsoletes]
+            
+    def create_new_block(self, reward_addr):
         """
         Generate a fresh new block that contains all valid
         pending transactions. 
         """
         newb = Block(self.chain[-1].hash)
-        newb.index = len(self.chain)
+        newb.index = self.chain[-1].index + 1
 
-        while len(self.pending_tx) > 0:
-            tx = self.pending_tx.pop()
-        
-            # TODO: check for double spending etc.
+        for tx in self.pending_tx:
             newb.transactions.append(tx)
-        
+            
+        tx = Transaction(None, txtype=TxType.COINBASE)
+        tx.add_out(MINING_REWARD, reward_addr)
+        tx.finalize()
+
+        newb.transactions.append(tx)
+
         newb.finalize()
 
         return newb
