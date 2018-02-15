@@ -108,28 +108,33 @@ class RSAKey:
         
         n = p*q
 
-        print e, n
-        print d, n
-
         # (e,n) public key
         # (d,n) secret key
 
         return RSAKey(RSAPublicKey(e,n), RSAPrivateKey(d,n))
 
     def sign(self, hash):
-        out = []
-        for c in hash:
-            out.append(mod_exp(ord(c), self.priv_key.d, self.priv_key.n))
+        return map(lambda c:mod_exp(ord(c), self.priv_key.d, self.priv_key.n), hash)
         
-        return out
-    
     def verify(self, hash, signature):
         out = []
 
-        for c in signature:
-            out.append(chr(mod_exp(c, self.public_key.e, self.public_key.n)))
-
+        try:
+            out = map(lambda c:chr(mod_exp(c, self.public_key.e, self.public_key.n)), 
+                    signature)
+        except:
+            """
+            If we return some random exception, key is definitely invalid.
+            """
+            return False
+        
         return "".join(out) == hash
+    
+    def publickey(self):
+        """
+        Return public key
+        """
+        return self.public_key
 
 if __name__ == '__main__':
     #print mod_exp(7, 560000000000000000000000000000000000, 561000000000000000000000000000000000)
