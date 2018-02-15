@@ -5,6 +5,7 @@ from lib.blockchain import Blockchain
 from lib.transaction import Transaction, TxType, UnauthorizedTxException
 from lib.wallet import Transfer
 from lib.utils import generate_key, sign, verify_sig
+from node.miner import Miner
 
 class BlockchainTest(unittest.TestCase):
 
@@ -22,9 +23,11 @@ class BlockchainTest(unittest.TestCase):
 
         self.assertEqual(len(filter(lambda x: tx.hash, pending_tx)), 1)
 
-        newb = blockchain.create_new_block(receiver.publickey())
-
-        blockchain.add_block(newb)
+        #newb = blockchain.create_new_block(receiver.publickey())
+        miner = Miner(blockchain)
+        miner.reward_addr = receiver.publickey()
+        newb = miner._mine()
+  
         
         pending_tx = blockchain.get_pending_transactions()
 
@@ -70,7 +73,10 @@ class BlockchainTest(unittest.TestCase):
             self.assertEqual(value_owned_by_sender, SENDER_ORIG_VALUE - SEND_AMOUNT*i)
 
         # Create a new block from these transactions and check that they are valid.
-        newb = blockchain.create_new_block(receiver.publickey())
+        
+        miner = Miner(blockchain)
+        miner.reward_addr = receiver.publickey()
+        newb = miner._mine()
 
         self.assertEqual(len(newb.transactions), 4)
     

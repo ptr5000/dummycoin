@@ -1,6 +1,7 @@
 
 from utils import sha1, verify_sig
-from transaction import Transaction, UnauthorizedTxException, TxException, TxType
+from transaction import UnauthorizedTxException, TxException
+from datetime import datetime
 
 MINING_REWARD = 10
 
@@ -12,16 +13,19 @@ class Block:
         self.index = 0
         self.hash = None
         self.difficulty = 1
+        self.timestamp = None
         
         # This is the genesis block.
         if prev is None:
             self.finalize() 
 
     def finalize(self):
-        tx = [i.hash for i in self.transactions]
-        self.hash = sha1("{}{}{}"
-            .format(self.prev, self.index, self.nonce)
-            .join(tx))
+        self.timestamp = datetime.now()
+
+        txdata = map(lambda x:x.hash, self.transactions) 
+        self.hash = sha1("{}{}{}{}"
+            .format(self.prev, self.index, self.nonce, self.timestamp)
+            .join(txdata))
 
     def add_transaction(self, transaction):
         transactions.append(transaction)
@@ -88,38 +92,24 @@ class Blockchain:
         """
         return self.chain[0]
 
+    def top(self):
+        return self.chain[-1]
+    
     def add_block(self, block):
         """
-        Add new block to blockchain, either through mining or from the network.
+        Add new block to blockchain
         """
         top = self.chain[-1]
         if block.index == top.index + 1 and block.prev == top.hash:
+
+            # TODO: also validate mined hash
             self.chain.append(block)
             
             # Remove transactions that were added within the block from pending tx list.
             obsoletes = map(lambda x: x.hash, block.transactions)
             self.pending_tx = [tx for tx in self.pending_tx if tx.hash not in obsoletes]
             
-    def create_new_block(self, reward_addr):
-        """
-        Generate a fresh new block that contains all valid
-        pending transactions. 
-        """
-        newb = Block(self.chain[-1].hash)
-        newb.index = self.chain[-1].index + 1
-
-        for tx in self.pending_tx:
-            newb.transactions.append(tx)
-            
-        tx = Transaction(None, txtype=TxType.COINBASE)
-        tx.add_out(MINING_REWARD, reward_addr)
-        tx.finalize()
-
-        newb.transactions.append(tx)
-
-        newb.finalize()
-
-        return newb
+    
 
 
 
