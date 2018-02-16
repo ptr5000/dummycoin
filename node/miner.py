@@ -1,4 +1,4 @@
-
+from threading import Thread
 from lib.blockchain import Block, Blockchain, MINING_REWARD
 from lib.transaction import Transaction, TxType
 
@@ -26,6 +26,11 @@ class Miner:
         return newb
 
     def check_hash(self, block):
+        """
+        Hashcash based. Solving this should take time O(2^n) where n
+        is difficulty in this implementation. In Bitcoin, the 
+        difficulty is more robust by allowing more precise finetuning.
+        """
         hashint = int(block.hash, 16)
 
         for i in range(block.difficulty):
@@ -53,17 +58,15 @@ class Miner:
         self.running = True
 
         block = self.create_new_block()
-        block.nonce = 1
+        block.nonce = 0
 
         while self.running:
-            
-            block.finalize()
-            #print "Trying with ", block.nonce, block.hash
-            if self.check_hash(block):
-                break
-
             block.nonce+=1
-        
+            block.finalize()
+
+            if self.check_hash(block):
+                self.running = False
+
         self.blockchain.add_block(block)
 
         return block
