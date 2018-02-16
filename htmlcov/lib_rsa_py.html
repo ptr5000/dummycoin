@@ -8,7 +8,7 @@
     
     
     <meta http-equiv="X-UA-Compatible" content="IE=emulateIE7" />
-    <title>Coverage for lib/rsa.py: 88%</title>
+    <title>Coverage for lib/rsa.py: 91%</title>
     <link rel="stylesheet" href="style.css" type="text/css">
     
     <script type="text/javascript" src="jquery.min.js"></script>
@@ -24,15 +24,15 @@
 <div id="header">
     <div class="content">
         <h1>Coverage for <b>lib/rsa.py</b> :
-            <span class="pc_cov">88%</span>
+            <span class="pc_cov">91%</span>
         </h1>
 
         <img id="keyboard_icon" src="keybd_closed.png" alt="Show keyboard shortcuts" />
 
         <h2 class="stats">
             94 statements &nbsp;
-            <span class="run hide_run shortkey_r button_toggle_run">83 run</span>
-            <span class="mis shortkey_m button_toggle_mis">11 missing</span>
+            <span class="run hide_run shortkey_r button_toggle_run">86 run</span>
+            <span class="mis shortkey_m button_toggle_mis">8 missing</span>
             <span class="exc shortkey_x button_toggle_exc">0 excluded</span>
 
             
@@ -82,7 +82,7 @@
 <p id="n13" class="stm run hide_run"><a href="#n13">13</a></p>
 <p id="n14" class="pln"><a href="#n14">14</a></p>
 <p id="n15" class="stm run hide_run"><a href="#n15">15</a></p>
-<p id="n16" class="stm mis"><a href="#n16">16</a></p>
+<p id="n16" class="stm run hide_run"><a href="#n16">16</a></p>
 <p id="n17" class="pln"><a href="#n17">17</a></p>
 <p id="n18" class="stm run hide_run"><a href="#n18">18</a></p>
 <p id="n19" class="pln"><a href="#n19">19</a></p>
@@ -172,8 +172,8 @@
 <p id="n103" class="stm run hide_run"><a href="#n103">103</a></p>
 <p id="n104" class="pln"><a href="#n104">104</a></p>
 <p id="n105" class="stm run hide_run"><a href="#n105">105</a></p>
-<p id="n106" class="stm mis"><a href="#n106">106</a></p>
-<p id="n107" class="stm mis"><a href="#n107">107</a></p>
+<p id="n106" class="stm run hide_run"><a href="#n106">106</a></p>
+<p id="n107" class="stm run hide_run"><a href="#n107">107</a></p>
 <p id="n108" class="pln"><a href="#n108">108</a></p>
 <p id="n109" class="stm run hide_run"><a href="#n109">109</a></p>
 <p id="n110" class="pln"><a href="#n110">110</a></p>
@@ -259,7 +259,7 @@
 <p id="t13" class="stm run hide_run">    <span class="op">(</span><span class="nam">d</span><span class="op">,</span><span class="nam">x</span><span class="op">,</span><span class="nam">y</span><span class="op">)</span> <span class="op">=</span> <span class="nam">egcd</span><span class="op">(</span><span class="nam">a</span><span class="op">,</span><span class="nam">b</span><span class="op">)</span><span class="strut">&nbsp;</span></p>
 <p id="t14" class="pln"><span class="strut">&nbsp;</span></p>
 <p id="t15" class="stm run hide_run">    <span class="key">if</span> <span class="nam">d</span> <span class="op">!=</span> <span class="num">1</span><span class="op">:</span><span class="strut">&nbsp;</span></p>
-<p id="t16" class="stm mis">        <span class="key">raise</span> <span class="nam">ValueError</span><span class="strut">&nbsp;</span></p>
+<p id="t16" class="stm run hide_run">        <span class="key">raise</span> <span class="nam">ValueError</span><span class="strut">&nbsp;</span></p>
 <p id="t17" class="pln"><span class="strut">&nbsp;</span></p>
 <p id="t18" class="stm run hide_run">    <span class="key">return</span> <span class="nam">x</span> <span class="op">%</span> <span class="nam">b</span><span class="strut">&nbsp;</span></p>
 <p id="t19" class="pln"><span class="strut">&nbsp;</span></p>
@@ -349,8 +349,8 @@
 <p id="t103" class="stm run hide_run">                <span class="nam">d</span> <span class="op">=</span> <span class="nam">long</span><span class="op">(</span><span class="nam">mul_inv</span><span class="op">(</span><span class="nam">e</span><span class="op">,</span> <span class="op">(</span><span class="nam">p</span><span class="op">-</span><span class="num">1</span><span class="op">)</span> <span class="op">*</span> <span class="op">(</span><span class="nam">q</span><span class="op">-</span><span class="num">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="strut">&nbsp;</span></p>
 <p id="t104" class="pln"><span class="strut">&nbsp;</span></p>
 <p id="t105" class="stm run hide_run">                <span class="nam">rp</span> <span class="op">=</span> <span class="nam">True</span><span class="strut">&nbsp;</span></p>
-<p id="t106" class="stm mis">            <span class="key">except</span> <span class="nam">ValueError</span><span class="op">:</span><span class="strut">&nbsp;</span></p>
-<p id="t107" class="stm mis">                <span class="key">pass</span><span class="strut">&nbsp;</span></p>
+<p id="t106" class="stm run hide_run">            <span class="key">except</span> <span class="nam">ValueError</span><span class="op">:</span><span class="strut">&nbsp;</span></p>
+<p id="t107" class="stm run hide_run">                <span class="key">pass</span><span class="strut">&nbsp;</span></p>
 <p id="t108" class="pln"><span class="strut">&nbsp;</span></p>
 <p id="t109" class="stm run hide_run">        <span class="nam">n</span> <span class="op">=</span> <span class="nam">p</span><span class="op">*</span><span class="nam">q</span><span class="strut">&nbsp;</span></p>
 <p id="t110" class="pln"><span class="strut">&nbsp;</span></p>
@@ -370,7 +370,7 @@
 <p id="t124" class="pln">                    <span class="nam">signature</span><span class="op">)</span><span class="strut">&nbsp;</span></p>
 <p id="t125" class="stm run hide_run">        <span class="key">except</span><span class="op">:</span><span class="strut">&nbsp;</span></p>
 <p id="t126" class="pln">            <span class="str">"""</span><span class="strut">&nbsp;</span></p>
-<p id="t127" class="pln"><span class="str">            If we return some random exception, key is definitely invalid.</span><span class="strut">&nbsp;</span></p>
+<p id="t127" class="pln"><span class="str">            If this raises some random exception, key is definitely invalid.</span><span class="strut">&nbsp;</span></p>
 <p id="t128" class="pln"><span class="str">            """</span><span class="strut">&nbsp;</span></p>
 <p id="t129" class="stm run hide_run">            <span class="key">return</span> <span class="nam">False</span><span class="strut">&nbsp;</span></p>
 <p id="t130" class="pln"><span class="strut">&nbsp;</span></p>
@@ -428,7 +428,7 @@
     <div class="content">
         <p>
             <a class="nav" href="index.html">&#xab; index</a> &nbsp; &nbsp; <a class="nav" href="https://coverage.readthedocs.io">coverage.py v4.4.2</a>,
-            created at 2018-02-15 11:21
+            created at 2018-02-16 08:47
         </p>
     </div>
 </div>
