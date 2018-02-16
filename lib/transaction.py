@@ -28,6 +28,9 @@ class TxOut:
 
     def get_state(self):
         return "{}{}".format(self.value, self.address)
+    
+    def __str__(self):
+        return "out {} => {}".format(self.value, self.address)
 
 class TxIn:
     def __init__(self, prev_outtx, signature, address, value):
@@ -38,6 +41,9 @@ class TxIn:
 
     def get_state(self):
         return self.prev_outtx
+
+    def __str__(self):
+        return "in {}({}) {} ({})".format(self.prev_outtx, self.value, self.address, self.signature)
 
 class Transaction:
     """
@@ -52,15 +58,19 @@ class Transaction:
         self.txtype = txtype
         self.signature = None
 
-        if self.priv_key is None and txtype == TxType.COINBASE:
-            self.priv_key = generate_key()
+        if txtype == TxType.COINBASE:
+            self.priv_key = "COINBASE"
         
     def finalize(self):
         vin = [i.get_state() for i in self.inputs]
         vout = [o.get_state() for o in self.outputs]
         
         self.hash = sha1("".join(vin).join(vout))
-        self.signature = sign(self.priv_key, self.hash)
+
+        if self.txtype == TxType.NORMAL:
+            self.signature = sign(self.priv_key, self.hash)
+        else:
+            self.signature = "COINBASE"
       
     def add_out(self, value, to_address):
         self.outputs.append(TxOut(value, to_address))
@@ -77,9 +87,11 @@ class Transaction:
         """
         ledger = []
 
-        debit = map(lambda x: {'hash': self.hash, 'value': x.value, 'signature': self.signature}, 
+        debit = map(lambda x: {'hash': self.hash, 'value': x.value, 
+                    'signature': self.signature, 'is_coinbase': self.txtype == TxType.COINBASE}, 
                 filter(lambda x:x.address == address, self.outputs))
-        credit = map(lambda x: {'hash': self.hash, 'value': -x.value, 'signature': self.signature}, 
+        credit = map(lambda x: {'hash': self.hash, 'value': -x.value, 
+                    'signature': self.signature, 'is_coinbase': self.txtype == TxType.COINBASE}, 
                 filter(lambda x:x.address == address, self.inputs))
 
         ledger.extend(debit)
@@ -90,8 +102,22 @@ class Transaction:
     def get_sender(self):
         return self.priv_key
     
-    def __unicode__(self):
-        return self.hash
+    def __str__(self):
+        if self.priv_key == "COINBASE":
+            out = "  sender: " + str(self.priv_key) + "\n"
+        else:
+            out = "  sender: " + str(self.priv_key.publickey()) + "\n"
+        out += "  hash: " + self.hash + "\n"
+        out += "  timestamp: " + str(self.timestamp) + "\n"
+        #out += "\tsignature: " + str(self.signature) + "\n"
+
+        for i in self.inputs:
+            out += "    " + str(i) + "\n"
+        
+        for i in self.outputs:
+            out += "    " + str(i) + "\n"
+        
+        return out
 
 
     

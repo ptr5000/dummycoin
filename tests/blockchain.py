@@ -1,7 +1,7 @@
 
 import unittest
 
-from lib.blockchain import Blockchain
+from lib.blockchain import Blockchain, MINING_REWARD
 from lib.transaction import Transaction, TxType, UnauthorizedTxException
 from lib.wallet import Transfer
 from lib.utils import generate_key, sign, verify_sig
@@ -38,7 +38,7 @@ class BlockchainTest(unittest.TestCase):
         """
         Test successful transaction
         """
-        SENDER_ORIG_VALUE = 10
+        SENDER_ORIG_VALUE = MINING_REWARD # Mining reward
         SEND_AMOUNT = 5
 
         blockchain = Blockchain()
@@ -48,10 +48,11 @@ class BlockchainTest(unittest.TestCase):
         miner_key = generate_key()
 
         # This is an empty blockchain so create value out of thin air.
-        tx1 = Transaction(sender, txtype=TxType.COINBASE)
-        tx1.add_out(SENDER_ORIG_VALUE, sender.publickey())
-        blockchain.add(tx1)
-        
+        miner = Miner(blockchain)
+        miner.reward_addr = sender.publickey()
+        emptyblock = miner._mine()
+        self.assertEqual(len(emptyblock.transactions), 1)
+    
         # First test with unconfirmed transactions 
         for i in range(1,3):
             transfer = Transfer(SEND_AMOUNT, sender, receiver.publickey(), blockchain)
@@ -75,34 +76,30 @@ class BlockchainTest(unittest.TestCase):
         # Test with confirmed transactions
         receiver_owns = blockchain.scan_unspent_transactions(receiver.publickey())
         value_received = sum(map(lambda x:x.get('value', 0), receiver_owns))
-        self.assertEqual(value_received, SENDER_ORIG_VALUE) # Should've received whole amount
+        self.assertEqual(value_received, SEND_AMOUNT*2) 
 
         sender_owns = blockchain.scan_unspent_transactions(sender.publickey())
         value_owned_by_sender = sum(map(lambda x:x.get('value', 0), sender_owns))
-        self.assertEqual(value_owned_by_sender, 0) # Should've nothing as everything is sent to recipient
+        self.assertEqual(value_owned_by_sender, SENDER_ORIG_VALUE - SEND_AMOUNT*2) 
 
         # Check whether miner received the award
         miner_owns = blockchain.scan_unspent_transactions(miner_key.publickey())
         value_owned_by_miner = sum(map(lambda x:x.get('value', 0), miner_owns))
-        self.assertEqual(value_owned_by_miner, 10)
+        self.assertEqual(value_owned_by_miner, MINING_REWARD)
 
-        self.assertEqual(len(newb.transactions), 4)
+        self.assertEqual(len(newb.transactions), 3)
     
-
-    def test_fraudulent_tx(self):
+    
+    def _test_fraudulent_tx(self, victim, blockchain):
         """
         Try transaction from somebody else's "wallet"
         """
-        blockchain = Blockchain()
-
-        victim = generate_key()
+        
+        miner_key = generate_key()
         perpetrator = generate_key()
 
-        # This is an empty blockchain so create value out of thin air.
-        victim_tx = Transaction(victim, txtype=TxType.COINBASE)
-        victim_tx.add_out(10, victim.publickey())
-        blockchain.add(victim_tx)
     
+        
         utxo = blockchain.scan_unspent_transactions(victim.publickey())
         
         perpetrator_owns = blockchain.scan_unspent_transactions(perpetrator.publickey())
@@ -116,8 +113,6 @@ class BlockchainTest(unittest.TestCase):
         debit = sum(map(lambda x:x['value'], utxo))
 
         for credit in utxo:
-            # TODO: can we forge the signature here? What happens if we do?
-            # Does it fail when we mine the block and verify it? 
             tx.add_in(credit['hash'], credit['signature'], victim.publickey(), credit['value'])
 
         tx.add_out(debit, perpetrator.publickey())
@@ -127,11 +122,41 @@ class BlockchainTest(unittest.TestCase):
             self.fail("Should've thrown UnauthorizedTxException")
         except UnauthorizedTxException:
             pass
-        
+
+        miner = Miner(blockchain)
+        miner.reward_addr = miner_key.publickey()
+        minedblock = miner._mine()
+
         perpetrator_owns = blockchain.scan_unspent_transactions(perpetrator.publickey())
 
         self.assertEqual(len(perpetrator_owns), 0) # Should own nothing. This tx should've failed. 
 
+    def test_fraudulent_tx_source_coinbase(self):
+        blockchain = Blockchain()
+
+        victim = generate_key()
+        miner = Miner(blockchain)
+        miner.reward_addr = victim.publickey()
+        emptyblock = miner._mine()
+        self.assertEqual(len(emptyblock.transactions), 1)
+        self._test_fraudulent_tx(victim, blockchain)
+    
+    def test_fraudulent_tx_source_other_user(self):
+        blockchain = Blockchain()
+
+        victim = generate_key()
+        miner_key = generate_key()
+        
+        miner = Miner(blockchain)
+        miner.reward_addr = miner_key.publickey()
+        emptyblock = miner._mine()
+
+        transfer = Transfer(10, miner_key, victim.publickey(), blockchain)
+        transfer.send()
+        
+        self.assertEqual(len(emptyblock.transactions), 1)
+        self._test_fraudulent_tx(victim, blockchain)
+    
         
 
 

@@ -80,6 +80,9 @@ class RSAPublicKey:
     def __init__(self, e, n):
         self.e = long(e)
         self.n = long(n)
+    
+    def __str__(self):
+        return "{:02x}{:02x}".format(self.e, self.n)[0:10] + "..." + "{:02x}{:02x}".format(self.e, self.n)[-10:]
 
 class RSAPrivateKey:
     def __init__(self, d, n):

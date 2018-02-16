@@ -63,7 +63,8 @@ class Miner:
         while self.running:
             block.nonce+=1
             block.finalize()
-
+            
+            #print "trying ", block.nonce, block.hash
             if self.check_hash(block):
                 self.running = False
 

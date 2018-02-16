@@ -23,15 +23,24 @@ class Block:
         self.timestamp = datetime.now()
 
         txdata = map(lambda x:x.hash, self.transactions) 
-        self.hash = sha1("{}{}{}{}"
-            .format(self.prev, self.index, self.nonce, self.timestamp)
-            .join(txdata))
-
+        self.hash = sha1("" + str(self.prev) + str(self.index) + str(self.nonce) + "".join(txdata))
+        
     def add_transaction(self, transaction):
         transactions.append(transaction)
 
     def get_transactions(self, address):
         return reduce(list.__add__, map(lambda x:x.get_ledger(address), self.transactions), [])
+
+    def __str__(self):
+        out = "BLOCK: " + str(self.index) + "\n"
+        out += "Nonce: " + str(self.nonce) + "\n"
+        out += "Timestamp: " + str(self.timestamp) + "\n"
+
+        for i in self.transactions:
+            out += str(i) + "\n"
+        
+        return out
+         
         
 class Blockchain:
     def __init__(self):
@@ -69,8 +78,14 @@ class Blockchain:
             raise TxException("Private key is missing")
     
         for input in transaction.inputs:
+            if input.address != transaction.priv_key.publickey():
+                return False
+            
             if input.signature == None:
                 raise TxException("Input signature is empty")
+            
+            if input.signature == "COINBASE":
+                continue
             
             if not verify_sig(transaction.priv_key, input.signature, input.prev_outtx):
                 return False
@@ -84,7 +99,7 @@ class Blockchain:
         """
         utxo = map(lambda x:x.get_transactions(address), self.chain)
         utxo.extend(map(lambda x:x.get_ledger(address), self.pending_tx))
-        return reduce(list.__add__, utxo)
+        return reduce(list.__add__, utxo, [])
 
     def get_genesis_block(self):
         """
