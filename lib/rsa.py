@@ -158,10 +158,10 @@ class RSAKey:
         return "".join(out) == hash
     
     def publickey(self):
-        return self.public_key
+        return str(self.public_key)
 
     def privatekey(self):
-        return self.priv_key
+        return str(self.priv_key)
 
 if __name__ == '__main__':
     #print mod_exp(7, 560000000000000000000000000000000000, 561000000000000000000000000000000000)

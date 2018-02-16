@@ -15,8 +15,10 @@ def status(query):
     return "OK"
 
 def mine(data):
-    if miner.mine(query):
-        return "Started mining with reward address:" + query
+    l = json.loads(data)
+
+    if miner.mine(l.get('reward_address')):
+        return "Started mining with reward address:" + l.get('reward_address')
     else:
         return "Mining already ongoing"
 
@@ -44,7 +46,7 @@ def wallet_send(data):
     
     wallet = Wallet(key, blockchain)
     try:
-        wallet.send(l.get('amount'), l.get('to_addr'))
+        wallet.send(l.get('amount'), l.get('recipient'))
     except InsufficientFundsException:
         return json.dumps({"successful": False, "message": "Insufficient funds"})
     

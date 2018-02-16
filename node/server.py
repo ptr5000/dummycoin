@@ -15,7 +15,7 @@ URLS = {
 }
 
 class DummyCoinHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
+    def do_POST(self):
         o = urlparse.urlparse(self.path)
 
         try:
@@ -25,11 +25,14 @@ class DummyCoinHandler(BaseHTTPRequestHandler):
             self.end_headers()
             return
 
+        content_len = int(self.headers.getheader('content-length', 0))
+        post_body = self.rfile.read(content_len)
+
         self.send_response(200)
         self.send_header('Content-type','application/json')
         self.end_headers()
 
-        self.wfile.write(URLS[o.path](o.query))
+        self.wfile.write(URLS[o.path](post_body))
 
 PORT = 3001
 

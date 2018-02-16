@@ -69,7 +69,7 @@ class Miner:
                 self.running = False
 
         self.blockchain.add_block(block)
-
+  
         return block
 
 

@@ -22,11 +22,11 @@ class UtilsTest(unittest.TestCase):
         keystr = str(key.publickey())
         newkey = RSAPublicKey.load(keystr)
 
-        self.assertEqual(key.publickey().n, newkey.n)
-        self.assertEqual(key.publickey().e, newkey.e)
+        self.assertEqual(key.public_key.n, newkey.n)
+        self.assertEqual(key.public_key.e, newkey.e)
 
         keystr = str(key.privatekey())
         newkey = RSAPrivateKey.load(keystr)
 
-        self.assertEqual(key.privatekey().n, newkey.n)
-        self.assertEqual(key.privatekey().d, newkey.d)
+        self.assertEqual(key.priv_key.n, newkey.n)
+        self.assertEqual(key.priv_key.d, newkey.d)
