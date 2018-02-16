@@ -31,7 +31,7 @@ class Block:
         transactions.append(transaction)
 
     def get_transactions(self, address):
-        return map(lambda x:x.get_ledger(address), self.transactions)
+        return reduce(list.__add__, map(lambda x:x.get_ledger(address), self.transactions), [])
         
 class Blockchain:
     def __init__(self):

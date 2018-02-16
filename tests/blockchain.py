@@ -45,38 +45,46 @@ class BlockchainTest(unittest.TestCase):
 
         sender = generate_key()
         receiver = generate_key()
+        miner_key = generate_key()
 
         # This is an empty blockchain so create value out of thin air.
         tx1 = Transaction(sender, txtype=TxType.COINBASE)
         tx1.add_out(SENDER_ORIG_VALUE, sender.publickey())
         blockchain.add(tx1)
         
+        # First test with unconfirmed transactions 
         for i in range(1,3):
             transfer = Transfer(SEND_AMOUNT, sender, receiver.publickey(), blockchain)
             transfer.send()
 
             # Scan the blockchain for the transaction that just happened.
             receiver_owns = blockchain.scan_unspent_transactions(receiver.publickey())
-
-            value_received = 0
-            for x in receiver_owns:
-                value_received += x.get('value', 0)
+            value_received = sum(map(lambda x:x.get('value', 0), receiver_owns))
             self.assertEqual(value_received, SEND_AMOUNT*i)
 
             sender_owns = blockchain.scan_unspent_transactions(sender.publickey())
-
-            value_owned_by_sender = 0
-
-            for x in sender_owns:
-                value_owned_by_sender += x.get('value', 0)
-
+            value_owned_by_sender = sum(map(lambda x:x.get('value', 0), sender_owns))
             self.assertEqual(value_owned_by_sender, SENDER_ORIG_VALUE - SEND_AMOUNT*i)
 
-        # Create a new block from these transactions and check that they are valid.
-        
+
+        # Mine the transactions         
         miner = Miner(blockchain)
-        miner.reward_addr = receiver.publickey()
+        miner.reward_addr = miner_key.publickey()
         newb = miner._mine()
+
+        # Test with confirmed transactions
+        receiver_owns = blockchain.scan_unspent_transactions(receiver.publickey())
+        value_received = sum(map(lambda x:x.get('value', 0), receiver_owns))
+        self.assertEqual(value_received, SENDER_ORIG_VALUE) # Should've received whole amount
+
+        sender_owns = blockchain.scan_unspent_transactions(sender.publickey())
+        value_owned_by_sender = sum(map(lambda x:x.get('value', 0), sender_owns))
+        self.assertEqual(value_owned_by_sender, 0) # Should've nothing as everything is sent to recipient
+
+        # Check whether miner received the award
+        miner_owns = blockchain.scan_unspent_transactions(miner_key.publickey())
+        value_owned_by_miner = sum(map(lambda x:x.get('value', 0), miner_owns))
+        self.assertEqual(value_owned_by_miner, 10)
 
         self.assertEqual(len(newb.transactions), 4)
     
