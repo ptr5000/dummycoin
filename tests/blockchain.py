@@ -3,7 +3,7 @@ import unittest
 
 from lib.blockchain import Blockchain, MINING_REWARD
 from lib.transaction import Transaction, TxType, UnauthorizedTxException
-from lib.wallet import Transfer
+from lib.wallet import Wallet
 from lib.utils import generate_key, sign, verify_sig
 from node.miner import Miner
 
@@ -23,11 +23,9 @@ class BlockchainTest(unittest.TestCase):
 
         self.assertEqual(len(filter(lambda x: tx.hash, pending_tx)), 1)
 
-        #newb = blockchain.create_new_block(receiver.publickey())
         miner = Miner(blockchain)
         miner.reward_addr = receiver.publickey()
         newb = miner._mine()
-  
         
         pending_tx = blockchain.get_pending_transactions()
 
@@ -51,12 +49,13 @@ class BlockchainTest(unittest.TestCase):
         miner = Miner(blockchain)
         miner.reward_addr = sender.publickey()
         emptyblock = miner._mine()
+
         self.assertEqual(len(emptyblock.transactions), 1)
     
         # First test with unconfirmed transactions 
         for i in range(1,3):
-            transfer = Transfer(SEND_AMOUNT, sender, receiver.publickey(), blockchain)
-            transfer.send()
+            wallet = Wallet(sender, blockchain)
+            wallet.send(SEND_AMOUNT, receiver.publickey())
 
             # Scan the blockchain for the transaction that just happened.
             receiver_owns = blockchain.scan_unspent_transactions(receiver.publickey())
@@ -97,8 +96,6 @@ class BlockchainTest(unittest.TestCase):
         
         miner_key = generate_key()
         perpetrator = generate_key()
-
-    
         
         utxo = blockchain.scan_unspent_transactions(victim.publickey())
         
@@ -146,13 +143,13 @@ class BlockchainTest(unittest.TestCase):
 
         victim = generate_key()
         miner_key = generate_key()
-        
+
         miner = Miner(blockchain)
         miner.reward_addr = miner_key.publickey()
         emptyblock = miner._mine()
 
-        transfer = Transfer(10, miner_key, victim.publickey(), blockchain)
-        transfer.send()
+        transfer = Wallet(miner_key, blockchain)
+        transfer.send(10, victim.publickey())
         
         self.assertEqual(len(emptyblock.transactions), 1)
         self._test_fraudulent_tx(victim, blockchain)

@@ -2,6 +2,7 @@
 import unittest
 
 from lib.utils import generate_key, sign, verify_sig
+from lib.rsa import RSAPublicKey, RSAPrivateKey
 
 class UtilsTest(unittest.TestCase):
     def test_rsa(self):
@@ -14,3 +15,18 @@ class UtilsTest(unittest.TestCase):
         self.assertTrue(verify_sig(key, signature, test_hash))
         self.assertFalse(verify_sig(key, signature, "4321"))
         self.assertFalse(verify_sig(key, signature, "12345"))
+
+    def test_format(self):
+        key = generate_key()
+        
+        keystr = str(key.publickey())
+        newkey = RSAPublicKey.load(keystr)
+
+        self.assertEqual(key.publickey().n, newkey.n)
+        self.assertEqual(key.publickey().e, newkey.e)
+
+        keystr = str(key.privatekey())
+        newkey = RSAPrivateKey.load(keystr)
+
+        self.assertEqual(key.privatekey().n, newkey.n)
+        self.assertEqual(key.privatekey().d, newkey.d)

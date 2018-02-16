@@ -30,9 +30,7 @@ class Base64:
         return out
 
     def decode(self, data):
-        pass
+        # TODO: replace with own
+        return data.decode('base64')
     
 
-
-def base64(s):
-    return "boop"

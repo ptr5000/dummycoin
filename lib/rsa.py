@@ -1,6 +1,7 @@
-import sys
+import sys, math
 from math import floor, log, sqrt
 from random import randrange
+from base64 import Base64
 
 def egcd(a, b):
     if b == 0:
@@ -68,7 +69,6 @@ def is_prime(n, s=10):
 def get_random_large_prime():
     while 1:
         a = randrange(1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000, 
-        
         9000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000)
         if a % 2 == 0:
             continue
@@ -76,18 +76,42 @@ def get_random_large_prime():
         if is_prime(a):
             return a
 
+class RSAUtils:
+    @staticmethod
+    def export_key(a, b):
+        return Base64().encode("{}:{}".format(a, b)) 
+    
+    @staticmethod
+    def parse_key(data):
+        raw = Base64().decode(data)
+        keys = raw.split(':')
+        return (long(keys[0]), long(keys[1]))
+
 class RSAPublicKey:
     def __init__(self, e, n):
         self.e = long(e)
         self.n = long(n)
     
+    @staticmethod
+    def load(data):
+        e, n = RSAUtils.parse_key(data)
+        return RSAPublicKey(e,n)
+    
     def __str__(self):
-        return "{:02x}{:02x}".format(self.e, self.n)[0:10] + "..." + "{:02x}{:02x}".format(self.e, self.n)[-10:]
+        return RSAUtils.export_key(self.e, self.n)
 
 class RSAPrivateKey:
     def __init__(self, d, n):
         self.d = long(d)
         self.n = long(n)
+
+    @staticmethod
+    def load(data):
+        d, n = RSAUtils.parse_key(data)
+        return RSAPrivateKey(d,n)
+    
+    def __str__(self):
+        return RSAUtils.export_key(self.d, self.n)
 
 class RSAKey:
     def __init__(self, public_key, priv_key):
@@ -134,10 +158,10 @@ class RSAKey:
         return "".join(out) == hash
     
     def publickey(self):
-        """
-        Return public key
-        """
         return self.public_key
+
+    def privatekey(self):
+        return self.priv_key
 
 if __name__ == '__main__':
     #print mod_exp(7, 560000000000000000000000000000000000, 561000000000000000000000000000000000)

@@ -3,12 +3,15 @@ import SimpleHTTPServer
 import SocketServer
 import handler
 import urlparse
-from threading import Thread
+
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 
 URLS = {
     '/': handler.status,
-    '/mine': handler.mine
+    '/mine': handler.mine,
+    '/wallet/create': handler.create_wallet,
+    '/wallet/info': handler.wallet_info,
+    '/wallet/send': handler.wallet_send
 }
 
 class DummyCoinHandler(BaseHTTPRequestHandler):
@@ -23,7 +26,7 @@ class DummyCoinHandler(BaseHTTPRequestHandler):
             return
 
         self.send_response(200)
-        self.send_header('Content-type','text/html')
+        self.send_header('Content-type','application/json')
         self.end_headers()
 
         self.wfile.write(URLS[o.path](o.query))
