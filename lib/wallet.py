@@ -1,4 +1,5 @@
 from transaction import Transaction
+from utils import sign
 
 class InsufficientFundsException(Exception):
     pass
@@ -36,7 +37,8 @@ class Wallet:
             raise InsufficientFundsException()
 
         for credit in utxo:
-            tx.add_in(credit['hash'], credit['signature'], self.key.publickey(), credit['value'])
+            signature = sign(self.key, credit['hash'])
+            tx.add_in(credit['hash'], signature, self.key.publickey(), credit['value'])
 
         tx.add_out(amount, to_addr)
         tx.add_out(change, self.key.publickey())

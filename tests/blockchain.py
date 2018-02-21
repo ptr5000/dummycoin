@@ -110,7 +110,7 @@ class BlockchainTest(unittest.TestCase):
         debit = sum(map(lambda x:x['value'], utxo))
 
         for credit in utxo:
-            tx.add_in(credit['hash'], credit['signature'], victim.publickey(), credit['value'])
+            tx.add_in(credit['hash'], sign(perpetrator, credit['hash']), victim.publickey(), credit['value'])
 
         tx.add_out(debit, perpetrator.publickey())
 
@@ -154,6 +154,30 @@ class BlockchainTest(unittest.TestCase):
         self.assertEqual(len(emptyblock.transactions), 1)
         self._test_fraudulent_tx(victim, blockchain)
     
+        
+    def test_chained_tx(self):
+        blockchain = Blockchain()
+
+        member1 = generate_key()
+        member2 = generate_key()
+        member3 = generate_key()
+
+        miner = Miner(blockchain)
+        miner.reward_addr = member1.publickey()
+        emptyblock = miner._mine()
+
+        wallet1 = Wallet(member1, blockchain)
+        wallet1.send(10, member2.publickey())
+    
+        wallet2 = Wallet(member2, blockchain)
+        wallet2.send(10, member3.publickey())
+
+        wallet3 = Wallet(member3, blockchain)
+        
+        self.assertEqual(wallet1.balance(), 0)
+        self.assertEqual(wallet2.balance(), 0)
+        self.assertEqual(wallet3.balance(), 10)
+        
         
 
 

@@ -30,7 +30,7 @@ class TxOut:
         return "{}{}".format(self.value, self.address)
     
     def __str__(self):
-        return "out {} => {}".format(self.value, self.address)
+        return "out {} => ...{}".format(self.value, self.address[-25:])
 
 class TxIn:
     def __init__(self, prev_outtx, signature, address, value):
@@ -43,7 +43,7 @@ class TxIn:
         return self.prev_outtx
 
     def __str__(self):
-        return "in {}({}) {} ({})".format(self.prev_outtx, self.value, self.address, self.signature)
+        return "in {}({}) ...{}".format(self.prev_outtx, self.value, self.address[-25:])
 
 class Transaction:
     """
@@ -56,8 +56,7 @@ class Transaction:
         self.inputs = []
         self.outputs = []
         self.txtype = txtype
-        self.signature = None
-
+    
         if txtype == TxType.COINBASE:
             self.priv_key = "COINBASE"
         
@@ -67,11 +66,6 @@ class Transaction:
         
         self.hash = sha1("".join(vin).join(vout))
 
-        if self.txtype == TxType.NORMAL:
-            self.signature = sign(self.priv_key, self.hash)
-        else:
-            self.signature = "COINBASE"
-      
     def add_out(self, value, to_address):
         self.outputs.append(TxOut(value, to_address))
     
@@ -87,11 +81,9 @@ class Transaction:
         """
         ledger = []
 
-        debit = map(lambda x: {'hash': self.hash, 'value': x.value, 
-                    'signature': self.signature, 'is_coinbase': self.txtype == TxType.COINBASE}, 
+        debit = map(lambda x: {'hash': self.hash, 'value': x.value}, 
                 filter(lambda x:x.address == address, self.outputs))
-        credit = map(lambda x: {'hash': self.hash, 'value': -x.value, 
-                    'signature': self.signature, 'is_coinbase': self.txtype == TxType.COINBASE}, 
+        credit = map(lambda x: {'hash': self.hash, 'value': -x.value}, 
                 filter(lambda x:x.address == address, self.inputs))
 
         ledger.extend(debit)
@@ -106,11 +98,10 @@ class Transaction:
         if self.priv_key == "COINBASE":
             out = "  sender: " + str(self.priv_key) + "\n"
         else:
-            out = "  sender: " + str(self.priv_key.publickey()) + "\n"
+            out = "  sender: ..." + str(self.priv_key.publickey()[-25:]) + "\n"
         out += "  hash: " + self.hash + "\n"
         out += "  timestamp: " + str(self.timestamp) + "\n"
-        #out += "\tsignature: " + str(self.signature) + "\n"
-
+       
         for i in self.inputs:
             out += "    " + str(i) + "\n"
         
