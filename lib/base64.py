@@ -16,7 +16,7 @@ class Base64:
         if npad > 0:
             data += '\0' * (3-npad)
       
-        for i in range(0, len(data), 3):
+        for i in xrange(0, len(data), 3):
             enc = (ord(data[i]) << 16) + (ord(data[i+1]) << 8) + ord(data[i+2])
             
             out += self.alphabet[(enc >> 18) & 63]
@@ -30,7 +30,25 @@ class Base64:
         return out
 
     def decode(self, data):
-        # TODO: replace with own
-        return data.decode('base64')
+        out = ""
+        
+        npad = data.count('=')
+        data = data.replace('=', 'A')
+
+        for i in xrange(0, len(data), 4):
+            ch = (self.alphabet.index(data[i]) << 18) + \
+                 (self.alphabet.index(data[i+1]) << 12) + \
+                 (self.alphabet.index(data[i+2]) << 6) + \
+                  self.alphabet.index(data[i+3])
+            
+            out += chr((ch >> 16) & 255)
+            out += chr((ch >> 8) & 255)
+            out += chr(ch & 255)
+        
+        if npad > 0:
+            out = out[:-npad]
+            
+        return out
+            
     
 
