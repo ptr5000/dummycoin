@@ -1,0 +1,96 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  animation: App-logo-spin infinite 20s linear;
+  height: 80px;
+}
+
+.App-header {
+  background-color: #222;
+  height: 150px;
+  padding: 20px;
+  color: white;
+}
+
+.App-title {
+  font-size: 1.5em;
+}
+
+.App-intro {
+  font-size: large;
+}
+
+@keyframes App-logo-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+
+
+.walletInfo {
+  background-color: rgba(107, 45, 92, 1);
+  padding: 10px;
+  color: white;
+}
+
+.transferForm {
+  background-color: rgba(216, 17, 89, 1);
+  padding: 10px;
+  color: white;
+}
+
+.transferForm label {
+  display:block;clear:both;
+  font-size: 15px;  
+}
+
+.transferForm input {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.transferForm button {
+  margin-top: 5px;
+  display:block;clear:both;
+  font-size: 13px;
+  
+}
+
+.keys {
+  word-wrap: break-word;
+  width: 30%;
+  font-size: 12px;
+  padding-left: 10px;
+ 
+}
+
+.keys>.publickey {
+  background-color: white;
+  padding: 15px;
+  color: rgba(216, 17, 89, 1);
+  font-family: Consolas,monospace
+}
+
+.keys>.privatekey {
+  background-color: white;
+  padding: 15px;
+  color: rgba(216, 17, 89, 1);
+  font-family: Consolas,monospace
+}
+
+.username {
+  margin-left: 10px;
+  float: left;
+}
+
+.minebutton {
+  font-size: 18px;
+  margin-top: 30px;
+  margin-left: 10px;
+}
+
+.clearfix {
+  clear: both;
+}

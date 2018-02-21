@@ -30,9 +30,19 @@ class DummyCoinHandler(BaseHTTPRequestHandler):
 
         self.send_response(200)
         self.send_header('Content-type','application/json')
+        self.send_header('Access-Control-Request-Method','*')
+        self.send_header('Access-Control-Allow-Origin', '*')
         self.end_headers()
 
         self.wfile.write(URLS[o.path](post_body))
+    
+    def do_OPTIONS(self):
+        self.send_response(200)
+        self.send_header('Access-Control-Request-Method','*')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Headers', '*')
+        
+        self.end_headers()
 
 PORT = 3001
 
