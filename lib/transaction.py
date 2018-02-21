@@ -12,16 +12,32 @@ from utils import sha1, sign, generate_key
 import uuid
 
 class UnauthorizedTxException(Exception):
+    """
+    Raised when transaction validation fails.
+    """
     pass
 
 class TxException(Exception):
+    """
+    General transaction exception.
+    """
     pass
 
 class TxType:
+    """
+    TxType defines the supported transactions types.
+
+    NORMAL: transaction is a transaction between addresses.
+    COINBASE: transaction is a reward from mining. 
+    """
     NORMAL = 0
     COINBASE = 1
 
 class TxOut:
+    """
+    Transaction data that carries the output information, i.e. how much is spent
+    and who it is transferred to. 
+    """
     def __init__(self, value, address):
         self.value = value
         self.address = address
@@ -33,6 +49,10 @@ class TxOut:
         return "out {} => ...{}".format(self.value, self.address[-25:])
 
 class TxIn:
+    """
+    Transactions that contain the unspent value. I.e. the source where the
+    value is transferred from to all the given outputs.
+    """
     def __init__(self, prev_outtx, signature, address, value):
         self.prev_outtx = prev_outtx
         self.signature = signature
@@ -61,6 +81,9 @@ class Transaction:
             self.priv_key = "COINBASE"
         
     def finalize(self):
+        """
+        Calculate hash for this transaction when it's done. 
+        """
         vin = [i.get_state() for i in self.inputs]
         vout = [o.get_state() for o in self.outputs]
         
@@ -77,7 +100,9 @@ class Transaction:
     
     def get_ledger(self, address):
         """
-        Return outputs by address.
+        Return outputs and inputs and their value. This can
+        be used to calculate balance from unspent transaction 
+        outputs (utxo) for given address. 
         """
         ledger = []
 
@@ -90,9 +115,6 @@ class Transaction:
         ledger.extend(credit)
         
         return ledger
-    
-    def get_sender(self):
-        return self.priv_key
     
     def __str__(self):
         if self.priv_key == "COINBASE":

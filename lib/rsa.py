@@ -1,9 +1,18 @@
+"""
+This RSA implementation is based on Introduction to Algorithms 3rd ed. by Cormen, Leiserson, 
+Rivest and Stein and is simply for educational purposes. 
+"""
 import sys, math
 from math import floor, log, sqrt
 from random import randrange
 from base64 import Base64
 
 def egcd(a, b):
+    """
+    Recursive version of extended euclid's algorithm
+    for finding greatest common divisor with coefficients 
+    x and y. 
+    """
     if b == 0:
         return (a, 1, 0)
     else:
@@ -11,6 +20,9 @@ def egcd(a, b):
         return (d, y, x - long(a/b) * y)
         
 def mul_inv(a, b):
+    """
+    Calculate multiplicative inverse. 
+    """
     (d,x,y) = egcd(a,b)
     
     if d != 1:
@@ -19,6 +31,10 @@ def mul_inv(a, b):
     return x % b
 
 def mod_exp(a, b, n):
+    """
+    Modular exponentation for big b's. 
+    Source 
+    """
     d = 1
     b = long(b)
   
@@ -34,7 +50,8 @@ def mod_exp(a, b, n):
 
 def is_prime(n, s=10):
     """
-    Miller-Rabin 
+    Miller-Rabin tests whether our random
+    numbers are primes or not. 
     """
     def witness(a, n):
         u = n - 1
@@ -67,6 +84,9 @@ def is_prime(n, s=10):
     return True
 
 def get_random_large_prime():
+    """
+    Returns insecure large random integer.
+    """
     while 1:
         a = randrange(1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000, 
         9000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000)
@@ -79,10 +99,16 @@ def get_random_large_prime():
 class RSAUtils:
     @staticmethod
     def export_key(a, b):
+        """
+        Encode key to format base64(a:b)
+        """
         return Base64().encode("{}:{}".format(a, b)) 
     
     @staticmethod
     def parse_key(data):
+        """
+        Decode key from format base64(a:b)
+        """
         raw = Base64().decode(data)
         keys = raw.split(':')
         return (long(keys[0]), long(keys[1]))
@@ -114,12 +140,25 @@ class RSAPrivateKey:
         return RSAUtils.export_key(self.d, self.n)
 
 class RSAKey:
+    """
+    RSA implementation based on CLRS.
+    """
     def __init__(self, public_key, priv_key):
+        """
+        @type public_key: RSAPublicKey
+        @type private_key: RSAPrivateKey
+        """
         self.public_key = public_key
         self.priv_key = priv_key
         
     @staticmethod
     def generate_key(e=17):
+        """
+        Generate new key
+
+        @param e: Small primary number used for public key. Default number is 17.
+        @return: RSAKey
+        """
         rp = False
 
         # Loop until gcd(e, (p-1)*(q-1)) = 1
@@ -141,9 +180,20 @@ class RSAKey:
         return RSAKey(RSAPublicKey(e,n), RSAPrivateKey(d,n))
 
     def sign(self, hash):
+        """
+        Sign hash with this key. 
+
+        @type hash: string
+        """
         return map(lambda c:mod_exp(ord(c), self.priv_key.d, self.priv_key.n), hash)
         
     def verify(self, hash, signature):
+        """
+        Verify hash with given signature.
+
+        @type hash: string
+        @type signature: int[]
+        """
         out = []
 
         try:
@@ -158,9 +208,17 @@ class RSAKey:
         return "".join(out) == hash
     
     def publickey(self):
+        """
+        Returns public key as a string. This means base64
+        encoded presentation. 
+        """
         return str(self.public_key)
 
     def privatekey(self):
+        """
+        Returns private key as a string. This means base64
+        encoded presentation. 
+        """
         return str(self.priv_key)
 
 if __name__ == '__main__':
