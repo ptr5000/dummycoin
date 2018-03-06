@@ -38,8 +38,8 @@ Testien suorittaminen tapahtuu juurihakemistossa ajamalla komento
 
 Koska projekti keskittyi virtuaalivaluuttaan, testit keskittyvät myös itse valuutan turvallisuuden testaamiseen. Eli voidaanko sitä varastaa tai yrittää vaikka kuluttaa useampaan kertaan. Testit kattavat tällä hetkellä ainakin seuraavat tapaukset:
 
-    - Toisen omistaman kolikon siirtämisen omaan osoitteen
-    - Jo käytetyn kolikon uudelleenkäyttö (tämä tosin vaatii lisätestejä jos implementaatioon lisätään hajautus)
+    - Toisen omistaman kolikon siirtämisen omaan osoitteseen väärentämällä transaction input arvoja. 
+    - Jo käytetyn kolikon uudelleenkäyttö (tämä tosin vaatii vielä lisätestejä jos implementaatioon lisätään hajautus)
     
 
 
