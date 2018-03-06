@@ -2,8 +2,14 @@ import json
 import unittest
 import time
 
-from node.handler import create_wallet, wallet_info, wallet_send, blockchain, mine
+from node.handler import (create_wallet,
+                          wallet_info,
+                          wallet_send,
+                          blockchain,
+                          mine)
+
 from lib.utils import generate_key
+
 
 class ServerTest(unittest.TestCase):
     def test_create_wallet(self):
@@ -34,7 +40,6 @@ class ServerTest(unittest.TestCase):
         data = json.loads(resp)
         self.assertEqual(data.get('successful', None), False)
 
-
     def test_whole_shebang(self):
         keys = json.loads(create_wallet(None))
 
@@ -42,7 +47,8 @@ class ServerTest(unittest.TestCase):
 
         time.sleep(1)
 
-        wallet_info_data = json.loads(wallet_info(json.dumps({"public_key": keys.get("public_key")})))
+        wallet_info_data = json.loads(wallet_info(
+            json.dumps({"public_key": keys.get("public_key")})))
         self.assertEquals(wallet_info_data.get('balance'), 10)
 
         receiver_keys = json.loads(create_wallet(None))
@@ -51,16 +57,14 @@ class ServerTest(unittest.TestCase):
                 "private_key": keys.get("private_key"),
                 "amount": 10,
                 "recipient": receiver_keys.get("public_key")}
-        
+
         resp = json.loads(wallet_send(json.dumps(data)))
         self.assertEqual(resp.get('successful', None), True)
 
-        wallet_info_data = json.loads(wallet_info(json.dumps({"public_key": keys.get("public_key")})))
+        wallet_info_data = json.loads(wallet_info(
+            json.dumps({"public_key": keys.get("public_key")})))
         self.assertEquals(wallet_info_data.get('balance'), 0)
 
-        recv_wallet_info_data = json.loads(wallet_info(json.dumps({"public_key": receiver_keys.get("public_key")})))
+        recv_wallet_info_data = json.loads(wallet_info(
+            json.dumps({"public_key": receiver_keys.get("public_key")})))
         self.assertEquals(recv_wallet_info_data.get('balance'), 10)
-
-        
-
-

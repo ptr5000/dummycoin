@@ -1,4 +1,4 @@
-
+# pylint: disable=E1601
 import SimpleHTTPServer
 import SocketServer
 import handler
@@ -13,6 +13,7 @@ URLS = {
     '/wallet/info': handler.wallet_info,
     '/wallet/send': handler.wallet_send
 }
+
 
 class DummyCoinHandler(BaseHTTPRequestHandler):
     def do_POST(self):
@@ -29,20 +30,21 @@ class DummyCoinHandler(BaseHTTPRequestHandler):
         post_body = self.rfile.read(content_len)
 
         self.send_response(200)
-        self.send_header('Content-type','application/json')
-        self.send_header('Access-Control-Request-Method','*')
+        self.send_header('Content-type', 'application/json')
+        self.send_header('Access-Control-Request-Method', '*')
         self.send_header('Access-Control-Allow-Origin', '*')
         self.end_headers()
 
         self.wfile.write(URLS[o.path](post_body))
-    
+
     def do_OPTIONS(self):
         self.send_response(200)
-        self.send_header('Access-Control-Request-Method','*')
+        self.send_header('Access-Control-Request-Method', '*')
         self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header('Access-Control-Allow-Headers', '*')
-        
+
         self.end_headers()
+
 
 PORT = 3001
 
@@ -50,4 +52,3 @@ httpd = SocketServer.TCPServer(("", PORT), DummyCoinHandler)
 
 print "serving at port", PORT
 httpd.serve_forever()
-

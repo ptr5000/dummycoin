@@ -4,6 +4,7 @@ import unittest
 from lib.utils import generate_key, sign, verify_sig
 from lib.rsa import RSAPublicKey, RSAPrivateKey
 
+
 class UtilsTest(unittest.TestCase):
     def test_rsa(self):
         test_hash = "1234"
@@ -18,7 +19,6 @@ class UtilsTest(unittest.TestCase):
 
     def test_format(self):
         key = generate_key()
-        
         keystr = str(key.publickey())
         newkey = RSAPublicKey.load(keystr)
 

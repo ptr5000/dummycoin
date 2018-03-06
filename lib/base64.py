@@ -5,7 +5,8 @@ class Base64:
     """
 
     def __init__(self):
-        self.alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+        self.alphabet = \
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 
     def encode(self, data):
         if len(data) == 0:
