@@ -40,7 +40,7 @@ Koska projekti keskittyi virtuaalivaluuttaan, testit keskittyvät myös itse val
 
     - Toisen omistaman kolikon siirtämisen omaan osoitteseen väärentämällä transaction input arvoja. 
     - Jo käytetyn kolikon uudelleenkäyttö (tämä tosin vaatii vielä lisätestejä jos implementaatioon lisätään hajautus)
-    
+    - Olemattoman rahan kulutus    
 
 
 
