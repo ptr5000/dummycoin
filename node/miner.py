@@ -31,6 +31,9 @@ class Miner:
         Hashcash based. Solving this should take time O(2^n) where n
         is difficulty in this implementation. In Bitcoin, the
         difficulty is more robust by allowing more precise finetuning.
+
+        Args:
+            block: Block object
         """
         hashint = int(block.hash, 16)
 
@@ -42,6 +45,12 @@ class Miner:
         return True
 
     def mine(self, reward_addr):
+        """
+        Start mining thread.
+
+        Args:
+            reward_addr: Address where reward transaction is pointed to.
+        """
         if self.running:
             return False
 
@@ -53,6 +62,9 @@ class Miner:
         return True
 
     def stop(self):
+        """
+        Stop mining thread.
+        """
         self.running = False
 
     def _mine(self):

@@ -43,10 +43,20 @@ class TxOut:
     spent and who it is transferred to.
     """
     def __init__(self, value, address):
+        """
+        Initialize TxOut
+
+        Args:
+            value: how much we transfer value in this transaction.
+            address: to whom we transfer the value.
+        """
         self.value = value
         self.address = address
 
     def get_state(self):
+        """
+        Returns current state as string.
+        """
         return "{}{}".format(self.value, self.address)
 
     def __str__(self):
@@ -59,12 +69,24 @@ class TxIn:
     value is transferred from to all the given outputs.
     """
     def __init__(self, prev_outtx, signature, address, value):
+        """
+        Initialize TxIn
+
+        Args:
+            prev_outtx: Id of previous transaction
+            signature: Signature for validation
+            address: Where this is transferred to
+            value: How much value this transaction input contains
+        """
         self.prev_outtx = prev_outtx
         self.signature = signature
         self.address = address
         self.value = value
 
     def get_state(self):
+        """
+        Returns current state as string.
+        """
         return self.prev_outtx
 
     def __str__(self):
@@ -77,6 +99,13 @@ class Transaction:
     Transaction is a transfer of coin value.
     """
     def __init__(self, priv_key, txtype=TxType.NORMAL):
+        """
+        Initialise Transaction
+
+        Args:
+            priv_key: Private key of the sender
+            txtype: TxType i.e. whether this is normal tx or coinbase.
+        """
         self.timestamp = datetime.now()
         self.hash = None
         self.priv_key = priv_key
@@ -96,12 +125,31 @@ class Transaction:
         self.hash = sha1("".join(vin).join(vout))
 
     def add_out(self, value, to_address):
+        """
+        Add output transaction into this transaction
+
+        Args:
+            value: Value of the transaction input
+            to_address: To whom the transaction is addressed to.
+        """
         self.outputs.append(TxOut(value, to_address))
 
     def add_in(self, prev_outtx, signature, from_address, value):
+        """
+        Add input transaction into this transaction.
+
+        Args:
+            prev_outtx: Id of previous transaction
+            signature: Signature for validation
+            address: Where this is transferred to
+            value: How much value this transaction input contains
+        """
         self.inputs.append(TxIn(prev_outtx, signature, from_address, value))
 
     def is_coinbase(self):
+        """
+        Returns whether this is a coinbase (reward) transaction or not.
+        """
         return self.txtype == TxType.COINBASE
 
     def get_ledger(self, address):
@@ -109,6 +157,12 @@ class Transaction:
         Return outputs and inputs and their value. This can
         be used to calculate balance from unspent transaction
         outputs (utxo) for given address.
+
+        Args:
+            address: Address string
+
+        Returns:
+            Array of transactions and their hash and value.
         """
         ledger = []
 

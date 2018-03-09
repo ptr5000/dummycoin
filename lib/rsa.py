@@ -15,6 +15,14 @@ def egcd(a, b):
     Recursive version of extended euclid's algorithm
     for finding greatest common divisor with coefficients
     x and y.
+
+    Args:
+        a: Integer
+        b: Integer
+
+    Returns:
+        Tuple (d, x, y) where d is gcd and x and y
+        are coefficients
     """
     if b == 0:
         return (a, 1, 0)
@@ -26,6 +34,13 @@ def egcd(a, b):
 def mul_inv(a, b):
     """
     Calculate multiplicative inverse.
+
+    Args:
+        a: long
+        b: long
+
+    Returns:
+        long
     """
     (d, x, _) = egcd(a, b)
 
@@ -38,6 +53,14 @@ def mul_inv(a, b):
 def mod_exp(a, b, n):
     """
     Modular exponentation for big b's.
+
+    Args:
+        a: long
+        b: long
+        n: long
+
+    Returns:
+        long
     """
     d = 1
     b = long(b)
@@ -57,6 +80,13 @@ def is_prime(n, s=10):
     """
     Miller-Rabin tests whether our random
     numbers are primes or not.
+
+    Args:
+        s: how many times we try to witness the prime. 40-50
+           should be enough for all applications.
+
+    Returns:
+        Boolean whether number is prime or not.
     """
     def witness(a, n):
         u = n - 1
@@ -108,6 +138,13 @@ class RSAUtils:
     def export_key(a, b):
         """
         Encode key to format base64(a:b)
+
+        Args:
+            a: key number 1
+            b: key number 2
+
+        Returns:
+            Base64 encoded presentation.
         """
         return Base64().encode("{}:{}".format(a, b))
 
@@ -115,6 +152,13 @@ class RSAUtils:
     def parse_key(data):
         """
         Decode key from format base64(a:b)
+
+        Args:
+            data: Base64 encoded data.
+
+        Returns:
+            Tuple with (a, b) where a and b are
+            keys as long.
         """
         raw = Base64().decode(data)
         keys = raw.split(':')
@@ -128,6 +172,15 @@ class RSAPublicKey:
 
     @staticmethod
     def load(data):
+        """
+        Decode public key from data
+
+        Args:
+            data: RSAUtils encoded key
+
+        Returns:
+            RSAPublicKey object
+        """
         e, n = RSAUtils.parse_key(data)
         return RSAPublicKey(e, n)
 
@@ -142,6 +195,15 @@ class RSAPrivateKey:
 
     @staticmethod
     def load(data):
+        """
+        Decode private key from data
+
+        Args:
+            data: RSAUtils encoded key
+
+        Returns:
+            RSAPrivateKey object
+        """
         d, n = RSAUtils.parse_key(data)
         return RSAPrivateKey(d, n)
 
@@ -155,8 +217,11 @@ class RSAKey:
     """
     def __init__(self, public_key, priv_key):
         """
-        @type public_key: RSAPublicKey
-        @type private_key: RSAPrivateKey
+        Initialise RSAKey
+
+        Args:
+            public_key: RSAPublicKey
+            private_key: RSAPrivateKey
         """
         self.public_key = public_key
         self.priv_key = priv_key
@@ -166,8 +231,11 @@ class RSAKey:
         """
         Generate new key
 
-        @param e: Small primary number used for public key. Default is 17.
-        @return: RSAKey
+        Args:
+            e: Small primary number used for public key. Default is 17.
+
+        Returns:
+            RSAKey object
         """
         rp = False
 

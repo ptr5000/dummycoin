@@ -25,6 +25,10 @@ class Wallet:
     def send(self, amount, to_addr):
         """
         Send money to the given address from this wallet.
+
+        Args:
+            amount: How much value is sent
+            to_addr: Address where value is transferred to.
         """
         tx = Transaction(self.key)
 

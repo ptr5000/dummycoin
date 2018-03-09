@@ -9,6 +9,15 @@ class Base64:
             "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 
     def encode(self, data):
+        """
+        Encode a string using Base64
+
+        Args:
+            data: string to be encoded
+
+        Returns:
+            encoded string
+        """
         if len(data) == 0:
             return ""
 
@@ -32,6 +41,15 @@ class Base64:
         return out
 
     def decode(self, data):
+        """
+        Decode base64 encoded string
+
+        Args:
+            data: base64 encoded string
+
+        Returns:
+            Decoded string
+        """
         out = ""
 
         npad = data.count('=')

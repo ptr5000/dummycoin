@@ -8,6 +8,12 @@ MINING_REWARD = 10
 
 class Block:
     def __init__(self, prev):
+        """
+        Initialize block.
+
+        Args:
+            prev: Previous block id.
+        """
         self.prev = prev
         self.transactions = []
         self.nonce = None
@@ -21,6 +27,10 @@ class Block:
             self.finalize()
 
     def finalize(self):
+        """
+        Set timestamp and calculate the hash for this block. This should
+        be called when block is ready to be checked against mining algorithm.
+        """
         self.timestamp = datetime.now()
 
         txdata = map(lambda x: x.hash, self.transactions)
@@ -28,6 +38,16 @@ class Block:
                          str(self.nonce) + "".join(txdata))
 
     def get_transactions(self, address):
+        """
+        Return transactions with given address.
+
+        Args:
+            address: public key of address
+
+        Returns:
+            List of transactions where given address
+            is involved.
+        """
         return reduce(list.__add__,
                       map(lambda x: x.get_ledger(address),
                           self.transactions), [])
@@ -51,6 +71,9 @@ class Blockchain:
     def add(self, transaction):
         """
         Add new transaction to blockchain mining queue.
+
+        Args:
+            transaction: Transaction object.
         """
         transaction.finalize()
 
@@ -68,6 +91,9 @@ class Blockchain:
     def verify(self, transaction):
         """
         Verify the authenticity of the transaction.
+
+        Args:
+            transaction: Transaction object
         """
         if not transaction:
             raise TypeError
@@ -99,6 +125,9 @@ class Blockchain:
         """
         Scan all the transactions from the blockchain and pending
         transactions by given owner address.
+
+        Args:
+            address: public key as string
         """
         utxo = map(lambda x: x.get_transactions(address),
                    self.chain)
@@ -109,6 +138,9 @@ class Blockchain:
     def get_genesis_block(self):
         """
         Return the genesis block.
+
+        Returns:
+            Block object
         """
         return self.chain[0]
 
@@ -118,6 +150,9 @@ class Blockchain:
     def add_block(self, block):
         """
         Add new block to blockchain
+
+        Args:
+            block: Block object
         """
         top = self.chain[-1]
         if block.index == top.index + 1 and block.prev == top.hash:
