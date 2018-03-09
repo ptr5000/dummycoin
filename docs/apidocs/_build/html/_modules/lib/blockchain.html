@@ -1,0 +1,244 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>lib.blockchain &#8212; DummyCoin  documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for lib.blockchain</h1><div class="highlight"><pre>
+<span></span>
+<span class="kn">from</span> <span class="nn">utils</span> <span class="k">import</span> <span class="n">sha1</span><span class="p">,</span> <span class="n">verify_sig</span>
+<span class="kn">from</span> <span class="nn">transaction</span> <span class="k">import</span> <span class="n">UnauthorizedTxException</span><span class="p">,</span> <span class="n">TxException</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span>
+
+<span class="n">MINING_REWARD</span> <span class="o">=</span> <span class="mi">10</span>
+
+
+<div class="viewcode-block" id="Block"><a class="viewcode-back" href="../../lib.html#lib.blockchain.Block">[docs]</a><span class="k">class</span> <span class="nc">Block</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prev</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize block.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            prev: Previous block id.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prev</span> <span class="o">=</span> <span class="n">prev</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transactions</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nonce</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hash</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">difficulty</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timestamp</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># This is the genesis block.</span>
+        <span class="k">if</span> <span class="n">prev</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Block.finalize"><a class="viewcode-back" href="../../lib.html#lib.blockchain.Block.finalize">[docs]</a>    <span class="k">def</span> <span class="nf">finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set timestamp and calculate the hash for this block. This should</span>
+<span class="sd">        be called when block is ready to be checked against mining algorithm.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+
+        <span class="n">txdata</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">hash</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">transactions</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hash</span> <span class="o">=</span> <span class="n">sha1</span><span class="p">(</span><span class="s2">&quot;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prev</span><span class="p">)</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">)</span> <span class="o">+</span></div>
+                         <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nonce</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">txdata</span><span class="p">))</span>
+
+<div class="viewcode-block" id="Block.get_transactions"><a class="viewcode-back" href="../../lib.html#lib.blockchain.Block.get_transactions">[docs]</a>    <span class="k">def</span> <span class="nf">get_transactions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return transactions with given address.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            address: public key of address</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List of transactions where given address</span>
+<span class="sd">            is involved.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">reduce</span><span class="p">(</span><span class="nb">list</span><span class="o">.</span><span class="fm">__add__</span><span class="p">,</span>
+                      <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">get_ledger</span><span class="p">(</span><span class="n">address</span><span class="p">),</span></div>
+                          <span class="bp">self</span><span class="o">.</span><span class="n">transactions</span><span class="p">),</span> <span class="p">[])</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="s2">&quot;BLOCK: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">out</span> <span class="o">+=</span> <span class="s2">&quot;Nonce: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nonce</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">out</span> <span class="o">+=</span> <span class="s2">&quot;Timestamp: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timestamp</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">transactions</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+</div>
+        <span class="k">return</span> <span class="n">out</span>
+
+
+<div class="viewcode-block" id="Blockchain"><a class="viewcode-back" href="../../lib.html#lib.blockchain.Blockchain">[docs]</a><span class="k">class</span> <span class="nc">Blockchain</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">chain</span> <span class="o">=</span> <span class="p">[</span><span class="n">Block</span><span class="p">(</span><span class="kc">None</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pending_tx</span> <span class="o">=</span> <span class="p">[]</span>
+
+<div class="viewcode-block" id="Blockchain.add"><a class="viewcode-back" href="../../lib.html#lib.blockchain.Blockchain.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transaction</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add new transaction to blockchain mining queue.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            transaction: Transaction object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">transaction</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span><span class="n">transaction</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">UnauthorizedTxException</span><span class="p">()</span>
+</div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pending_tx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">transaction</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Blockchain.get_pending_transactions"><a class="viewcode-back" href="../../lib.html#lib.blockchain.Blockchain.get_pending_transactions">[docs]</a>    <span class="k">def</span> <span class="nf">get_pending_transactions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the list of pending (unapproved) transactions.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pending_tx</span>
+
+<div class="viewcode-block" id="Blockchain.verify"><a class="viewcode-back" href="../../lib.html#lib.blockchain.Blockchain.verify">[docs]</a>    <span class="k">def</span> <span class="nf">verify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transaction</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Verify the authenticity of the transaction.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            transaction: Transaction object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">transaction</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">transaction</span><span class="o">.</span><span class="n">hash</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">TxException</span><span class="p">(</span><span class="s2">&quot;Transaction hash is empty&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">transaction</span><span class="o">.</span><span class="n">priv_key</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">TxException</span><span class="p">(</span><span class="s2">&quot;Private key is missing&quot;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="nb">input</span> <span class="ow">in</span> <span class="n">transaction</span><span class="o">.</span><span class="n">inputs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">input</span><span class="o">.</span><span class="n">address</span> <span class="o">!=</span> <span class="n">transaction</span><span class="o">.</span><span class="n">priv_key</span><span class="o">.</span><span class="n">publickey</span><span class="p">():</span>
+                <span class="k">return</span> <span class="kc">False</span>
+
+            <span class="k">if</span> <span class="nb">input</span><span class="o">.</span><span class="n">signature</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">TxException</span><span class="p">(</span><span class="s2">&quot;Input signature is empty&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="nb">input</span><span class="o">.</span><span class="n">signature</span> <span class="o">==</span> <span class="s2">&quot;COINBASE&quot;</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">verify_sig</span><span class="p">(</span><span class="n">transaction</span><span class="o">.</span><span class="n">priv_key</span><span class="p">,</span>
+                              <span class="nb">input</span><span class="o">.</span><span class="n">signature</span><span class="p">,</span>
+                              <span class="nb">input</span><span class="o">.</span><span class="n">prev_outtx</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+</div>
+        <span class="k">return</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="Blockchain.scan_unspent_transactions"><a class="viewcode-back" href="../../lib.html#lib.blockchain.Blockchain.scan_unspent_transactions">[docs]</a>    <span class="k">def</span> <span class="nf">scan_unspent_transactions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Scan all the transactions from the blockchain and pending</span>
+<span class="sd">        transactions by given owner address.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            address: public key as string</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">utxo</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">get_transactions</span><span class="p">(</span><span class="n">address</span><span class="p">),</span>
+                   <span class="bp">self</span><span class="o">.</span><span class="n">chain</span><span class="p">)</span>
+        <span class="n">utxo</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">get_ledger</span><span class="p">(</span><span class="n">address</span><span class="p">),</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">pending_tx</span><span class="p">))</span></div>
+        <span class="k">return</span> <span class="n">reduce</span><span class="p">(</span><span class="nb">list</span><span class="o">.</span><span class="fm">__add__</span><span class="p">,</span> <span class="n">utxo</span><span class="p">,</span> <span class="p">[])</span>
+
+<div class="viewcode-block" id="Blockchain.get_genesis_block"><a class="viewcode-back" href="../../lib.html#lib.blockchain.Blockchain.get_genesis_block">[docs]</a>    <span class="k">def</span> <span class="nf">get_genesis_block</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the genesis block.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Block object</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<div class="viewcode-block" id="Blockchain.top"><a class="viewcode-back" href="../../lib.html#lib.blockchain.Blockchain.top">[docs]</a>    <span class="k">def</span> <span class="nf">top</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+<div class="viewcode-block" id="Blockchain.add_block"><a class="viewcode-back" href="../../lib.html#lib.blockchain.Blockchain.add_block">[docs]</a>    <span class="k">def</span> <span class="nf">add_block</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add new block to blockchain</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            block: Block object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">top</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">block</span><span class="o">.</span><span class="n">index</span> <span class="o">==</span> <span class="n">top</span><span class="o">.</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">block</span><span class="o">.</span><span class="n">prev</span> <span class="o">==</span> <span class="n">top</span><span class="o">.</span><span class="n">hash</span><span class="p">:</span>
+
+            <span class="c1"># TODO: also validate mined hash</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">block</span><span class="p">)</span>
+
+            <span class="c1"># Remove transactions that were added</span>
+            <span class="c1"># within the block from pending tx list.</span>
+            <span class="n">obsoletes</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">hash</span><span class="p">,</span> <span class="n">block</span><span class="o">.</span><span class="n">transactions</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pending_tx</span> <span class="o">=</span> <span class="p">[</span></div></div>
+                <span class="n">tx</span> <span class="k">for</span> <span class="n">tx</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pending_tx</span> <span class="k">if</span> <span class="n">tx</span><span class="o">.</span><span class="n">hash</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">obsoletes</span><span class="p">]</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

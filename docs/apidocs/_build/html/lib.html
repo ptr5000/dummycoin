@@ -1,0 +1,601 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>lib package &#8212; DummyCoin  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="lib-package">
+<h1>lib package<a class="headerlink" href="#lib-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-lib.base64">
+<span id="lib-base64-module"></span><h2>lib.base64 module<a class="headerlink" href="#module-lib.base64" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="lib.base64.Base64">
+<em class="property">class </em><code class="descclassname">lib.base64.</code><code class="descname">Base64</code><a class="reference internal" href="_modules/lib/base64.html#Base64"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.base64.Base64" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="https://tools.ietf.org/html/rfc4648">https://tools.ietf.org/html/rfc4648</a></p>
+<dl class="method">
+<dt id="lib.base64.Base64.decode">
+<code class="descname">decode</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib/base64.html#Base64.decode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.base64.Base64.decode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decode base64 encoded string</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>data: base64 encoded string</dd>
+<dt>Returns:</dt>
+<dd>Decoded string</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.base64.Base64.encode">
+<code class="descname">encode</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib/base64.html#Base64.encode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.base64.Base64.encode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Encode a string using Base64</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>data: string to be encoded</dd>
+<dt>Returns:</dt>
+<dd>encoded string</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-lib.blockchain">
+<span id="lib-blockchain-module"></span><h2>lib.blockchain module<a class="headerlink" href="#module-lib.blockchain" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="lib.blockchain.Block">
+<em class="property">class </em><code class="descclassname">lib.blockchain.</code><code class="descname">Block</code><span class="sig-paren">(</span><em>prev</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib/blockchain.html#Block"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.blockchain.Block" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="lib.blockchain.Block.finalize">
+<code class="descname">finalize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib/blockchain.html#Block.finalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.blockchain.Block.finalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set timestamp and calculate the hash for this block. This should
+be called when block is ready to be checked against mining algorithm.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.blockchain.Block.get_transactions">
+<code class="descname">get_transactions</code><span class="sig-paren">(</span><em>address</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib/blockchain.html#Block.get_transactions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.blockchain.Block.get_transactions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return transactions with given address.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>address: public key of address</dd>
+<dt>Returns:</dt>
+<dd>List of transactions where given address
+is involved.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.blockchain.Blockchain">
+<em class="property">class </em><code class="descclassname">lib.blockchain.</code><code class="descname">Blockchain</code><a class="reference internal" href="_modules/lib/blockchain.html#Blockchain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.blockchain.Blockchain" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="lib.blockchain.Blockchain.add">
+<code class="descname">add</code><span class="sig-paren">(</span><em>transaction</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib/blockchain.html#Blockchain.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.blockchain.Blockchain.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add new transaction to blockchain mining queue.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>transaction: Transaction object.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.blockchain.Blockchain.add_block">
+<code class="descname">add_block</code><span class="sig-paren">(</span><em>block</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib/blockchain.html#Blockchain.add_block"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.blockchain.Blockchain.add_block" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add new block to blockchain</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>block: Block object</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.blockchain.Blockchain.get_genesis_block">
+<code class="descname">get_genesis_block</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib/blockchain.html#Blockchain.get_genesis_block"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.blockchain.Blockchain.get_genesis_block" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the genesis block.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>Block object</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.blockchain.Blockchain.get_pending_transactions">
+<code class="descname">get_pending_transactions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib/blockchain.html#Blockchain.get_pending_transactions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.blockchain.Blockchain.get_pending_transactions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the list of pending (unapproved) transactions.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.blockchain.Blockchain.scan_unspent_transactions">
+<code class="descname">scan_unspent_transactions</code><span class="sig-paren">(</span><em>address</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib/blockchain.html#Blockchain.scan_unspent_transactions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.blockchain.Blockchain.scan_unspent_transactions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Scan all the transactions from the blockchain and pending
+transactions by given owner address.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>address: public key as string</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.blockchain.Blockchain.top">
+<code class="descname">top</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib/blockchain.html#Blockchain.top"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.blockchain.Blockchain.top" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="lib.blockchain.Blockchain.verify">
+<code class="descname">verify</code><span class="sig-paren">(</span><em>transaction</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib/blockchain.html#Blockchain.verify"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.blockchain.Blockchain.verify" title="Permalink to this definition">¶</a></dt>
+<dd><p>Verify the authenticity of the transaction.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>transaction: Transaction object</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-lib.rsa">
+<span id="lib-rsa-module"></span><h2>lib.rsa module<a class="headerlink" href="#module-lib.rsa" title="Permalink to this headline">¶</a></h2>
+<p>This RSA implementation is based on Introduction to Algorithms 3rd ed.
+by Cormen, Leiserson, Rivest and Stein and is simply
+for educational purposes.</p>
+<dl class="class">
+<dt id="lib.rsa.RSAKey">
+<em class="property">class </em><code class="descclassname">lib.rsa.</code><code class="descname">RSAKey</code><span class="sig-paren">(</span><em>public_key</em>, <em>priv_key</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib/rsa.html#RSAKey"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.rsa.RSAKey" title="Permalink to this definition">¶</a></dt>
+<dd><p>RSA implementation based on CLRS.</p>
+<dl class="staticmethod">
+<dt id="lib.rsa.RSAKey.generate_key">
+<em class="property">static </em><code class="descname">generate_key</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib/rsa.html#RSAKey.generate_key"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.rsa.RSAKey.generate_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate new key</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>e: Small primary number used for public key. Default is 17.</dd>
+<dt>Returns:</dt>
+<dd>RSAKey object</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.rsa.RSAKey.privatekey">
+<code class="descname">privatekey</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib/rsa.html#RSAKey.privatekey"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.rsa.RSAKey.privatekey" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns private key as a string. This means base64
+encoded presentation.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.rsa.RSAKey.publickey">
+<code class="descname">publickey</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib/rsa.html#RSAKey.publickey"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.rsa.RSAKey.publickey" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns public key as a string. This means base64
+encoded presentation.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.rsa.RSAKey.sign">
+<code class="descname">sign</code><span class="sig-paren">(</span><em>hash</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib/rsa.html#RSAKey.sign"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.rsa.RSAKey.sign" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sign hash with this key.</p>
+<p>&#64;type hash: string</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.rsa.RSAKey.verify">
+<code class="descname">verify</code><span class="sig-paren">(</span><em>hash</em>, <em>signature</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib/rsa.html#RSAKey.verify"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.rsa.RSAKey.verify" title="Permalink to this definition">¶</a></dt>
+<dd><p>Verify hash with given signature.</p>
+<p>&#64;type hash: string
+&#64;type signature: int[]</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.rsa.RSAPrivateKey">
+<em class="property">class </em><code class="descclassname">lib.rsa.</code><code class="descname">RSAPrivateKey</code><span class="sig-paren">(</span><em>d</em>, <em>n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib/rsa.html#RSAPrivateKey"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.rsa.RSAPrivateKey" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="staticmethod">
+<dt id="lib.rsa.RSAPrivateKey.load">
+<em class="property">static </em><code class="descname">load</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib/rsa.html#RSAPrivateKey.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.rsa.RSAPrivateKey.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decode private key from data</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>data: RSAUtils encoded key</dd>
+<dt>Returns:</dt>
+<dd>RSAPrivateKey object</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.rsa.RSAPublicKey">
+<em class="property">class </em><code class="descclassname">lib.rsa.</code><code class="descname">RSAPublicKey</code><span class="sig-paren">(</span><em>e</em>, <em>n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib/rsa.html#RSAPublicKey"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.rsa.RSAPublicKey" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="staticmethod">
+<dt id="lib.rsa.RSAPublicKey.load">
+<em class="property">static </em><code class="descname">load</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib/rsa.html#RSAPublicKey.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.rsa.RSAPublicKey.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decode public key from data</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>data: RSAUtils encoded key</dd>
+<dt>Returns:</dt>
+<dd>RSAPublicKey object</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.rsa.RSAUtils">
+<em class="property">class </em><code class="descclassname">lib.rsa.</code><code class="descname">RSAUtils</code><a class="reference internal" href="_modules/lib/rsa.html#RSAUtils"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.rsa.RSAUtils" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="staticmethod">
+<dt id="lib.rsa.RSAUtils.export_key">
+<em class="property">static </em><code class="descname">export_key</code><span class="sig-paren">(</span><em>b</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib/rsa.html#RSAUtils.export_key"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.rsa.RSAUtils.export_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Encode key to format base64(a:b)</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>a: key number 1
+b: key number 2</dd>
+<dt>Returns:</dt>
+<dd>Base64 encoded presentation.</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="lib.rsa.RSAUtils.parse_key">
+<em class="property">static </em><code class="descname">parse_key</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib/rsa.html#RSAUtils.parse_key"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.rsa.RSAUtils.parse_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decode key from format base64(a:b)</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>data: Base64 encoded data.</dd>
+<dt>Returns:</dt>
+<dd>Tuple with (a, b) where a and b are
+keys as long.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="lib.rsa.egcd">
+<code class="descclassname">lib.rsa.</code><code class="descname">egcd</code><span class="sig-paren">(</span><em>a</em>, <em>b</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib/rsa.html#egcd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.rsa.egcd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Recursive version of extended euclid’s algorithm
+for finding greatest common divisor with coefficients
+x and y.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>a: Integer
+b: Integer</dd>
+<dt>Returns:</dt>
+<dd>Tuple (d, x, y) where d is gcd and x and y
+are coefficients</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib.rsa.get_random_large_prime">
+<code class="descclassname">lib.rsa.</code><code class="descname">get_random_large_prime</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib/rsa.html#get_random_large_prime"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.rsa.get_random_large_prime" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns insecure large random integer.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib.rsa.getrandbits">
+<code class="descclassname">lib.rsa.</code><code class="descname">getrandbits</code><span class="sig-paren">(</span><em>k</em><span class="sig-paren">)</span> &#x2192; x.  Generates a long int with k random bits.<a class="headerlink" href="#lib.rsa.getrandbits" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="lib.rsa.is_prime">
+<code class="descclassname">lib.rsa.</code><code class="descname">is_prime</code><span class="sig-paren">(</span><em>n</em>, <em>s=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib/rsa.html#is_prime"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.rsa.is_prime" title="Permalink to this definition">¶</a></dt>
+<dd><p>Miller-Rabin tests whether our random
+numbers are primes or not.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>s: how many times we try to witness the prime. 40-50</dt>
+<dd>should be enough for all applications.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>Boolean whether number is prime or not.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib.rsa.mod_exp">
+<code class="descclassname">lib.rsa.</code><code class="descname">mod_exp</code><span class="sig-paren">(</span><em>a</em>, <em>b</em>, <em>n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib/rsa.html#mod_exp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.rsa.mod_exp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modular exponentation for big b’s.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>a: long
+b: long
+n: long</dd>
+<dt>Returns:</dt>
+<dd>long</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib.rsa.mul_inv">
+<code class="descclassname">lib.rsa.</code><code class="descname">mul_inv</code><span class="sig-paren">(</span><em>a</em>, <em>b</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib/rsa.html#mul_inv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.rsa.mul_inv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate multiplicative inverse.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>a: long
+b: long</dd>
+<dt>Returns:</dt>
+<dd>long</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-lib.transaction">
+<span id="lib-transaction-module"></span><h2>lib.transaction module<a class="headerlink" href="#module-lib.transaction" title="Permalink to this headline">¶</a></h2>
+<p>Transactions</p>
+<p>References:</p>
+<p><a class="reference external" href="https://bitcoin.org/en/developer-guide#transactions">https://bitcoin.org/en/developer-guide#transactions</a>
+<a class="reference external" href="https://github.com/bitcoinbook/bitcoinbook/blob/second_edition/ch02.asciidoc">https://github.com/bitcoinbook/bitcoinbook/blob/second_edition/ch02.asciidoc</a></p>
+<dl class="class">
+<dt id="lib.transaction.Transaction">
+<em class="property">class </em><code class="descclassname">lib.transaction.</code><code class="descname">Transaction</code><span class="sig-paren">(</span><em>priv_key</em>, <em>txtype=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib/transaction.html#Transaction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.transaction.Transaction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transaction is a transfer of coin value.</p>
+<dl class="method">
+<dt id="lib.transaction.Transaction.add_in">
+<code class="descname">add_in</code><span class="sig-paren">(</span><em>prev_outtx</em>, <em>signature</em>, <em>from_address</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib/transaction.html#Transaction.add_in"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.transaction.Transaction.add_in" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add input transaction into this transaction.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>prev_outtx: Id of previous transaction
+signature: Signature for validation
+address: Where this is transferred to
+value: How much value this transaction input contains</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.transaction.Transaction.add_out">
+<code class="descname">add_out</code><span class="sig-paren">(</span><em>value</em>, <em>to_address</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib/transaction.html#Transaction.add_out"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.transaction.Transaction.add_out" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add output transaction into this transaction</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>value: Value of the transaction input
+to_address: To whom the transaction is addressed to.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.transaction.Transaction.finalize">
+<code class="descname">finalize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib/transaction.html#Transaction.finalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.transaction.Transaction.finalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate hash for this transaction when it’s done.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.transaction.Transaction.get_ledger">
+<code class="descname">get_ledger</code><span class="sig-paren">(</span><em>address</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib/transaction.html#Transaction.get_ledger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.transaction.Transaction.get_ledger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return outputs and inputs and their value. This can
+be used to calculate balance from unspent transaction
+outputs (utxo) for given address.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>address: Address string</dd>
+<dt>Returns:</dt>
+<dd>Array of transactions and their hash and value.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.transaction.Transaction.is_coinbase">
+<code class="descname">is_coinbase</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib/transaction.html#Transaction.is_coinbase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.transaction.Transaction.is_coinbase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns whether this is a coinbase (reward) transaction or not.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="lib.transaction.TxException">
+<em class="property">exception </em><code class="descclassname">lib.transaction.</code><code class="descname">TxException</code><a class="reference internal" href="_modules/lib/transaction.html#TxException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.transaction.TxException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">exceptions.Exception</span></code></p>
+<p>General transaction exception.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.transaction.TxIn">
+<em class="property">class </em><code class="descclassname">lib.transaction.</code><code class="descname">TxIn</code><span class="sig-paren">(</span><em>prev_outtx</em>, <em>signature</em>, <em>address</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib/transaction.html#TxIn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.transaction.TxIn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transactions that contain the unspent value. I.e. the source where the
+value is transferred from to all the given outputs.</p>
+<dl class="method">
+<dt id="lib.transaction.TxIn.get_state">
+<code class="descname">get_state</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib/transaction.html#TxIn.get_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.transaction.TxIn.get_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns current state as string.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.transaction.TxOut">
+<em class="property">class </em><code class="descclassname">lib.transaction.</code><code class="descname">TxOut</code><span class="sig-paren">(</span><em>value</em>, <em>address</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib/transaction.html#TxOut"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.transaction.TxOut" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transaction data that carries the output information, i.e. how much is
+spent and who it is transferred to.</p>
+<dl class="method">
+<dt id="lib.transaction.TxOut.get_state">
+<code class="descname">get_state</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib/transaction.html#TxOut.get_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.transaction.TxOut.get_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns current state as string.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.transaction.TxType">
+<em class="property">class </em><code class="descclassname">lib.transaction.</code><code class="descname">TxType</code><a class="reference internal" href="_modules/lib/transaction.html#TxType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.transaction.TxType" title="Permalink to this definition">¶</a></dt>
+<dd><p>TxType defines the supported transactions types.</p>
+<p>NORMAL: transaction is a transaction between addresses.
+COINBASE: transaction is a reward from mining.</p>
+<dl class="attribute">
+<dt id="lib.transaction.TxType.COINBASE">
+<code class="descname">COINBASE</code><em class="property"> = 1</em><a class="headerlink" href="#lib.transaction.TxType.COINBASE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.transaction.TxType.NORMAL">
+<code class="descname">NORMAL</code><em class="property"> = 0</em><a class="headerlink" href="#lib.transaction.TxType.NORMAL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="lib.transaction.UnauthorizedTxException">
+<em class="property">exception </em><code class="descclassname">lib.transaction.</code><code class="descname">UnauthorizedTxException</code><a class="reference internal" href="_modules/lib/transaction.html#UnauthorizedTxException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.transaction.UnauthorizedTxException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">exceptions.Exception</span></code></p>
+<p>Raised when transaction validation fails.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-lib.utils">
+<span id="lib-utils-module"></span><h2>lib.utils module<a class="headerlink" href="#module-lib.utils" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="lib.utils.generate_key">
+<code class="descclassname">lib.utils.</code><code class="descname">generate_key</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib/utils.html#generate_key"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.utils.generate_key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="lib.utils.sha1">
+<code class="descclassname">lib.utils.</code><code class="descname">sha1</code><span class="sig-paren">(</span><em>s</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib/utils.html#sha1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.utils.sha1" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="lib.utils.sign">
+<code class="descclassname">lib.utils.</code><code class="descname">sign</code><span class="sig-paren">(</span><em>key</em>, <em>hash</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib/utils.html#sign"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.utils.sign" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="lib.utils.verify_sig">
+<code class="descclassname">lib.utils.</code><code class="descname">verify_sig</code><span class="sig-paren">(</span><em>key</em>, <em>signature</em>, <em>hash</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib/utils.html#verify_sig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.utils.verify_sig" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-lib.wallet">
+<span id="lib-wallet-module"></span><h2>lib.wallet module<a class="headerlink" href="#module-lib.wallet" title="Permalink to this headline">¶</a></h2>
+<dl class="exception">
+<dt id="lib.wallet.InsufficientFundsException">
+<em class="property">exception </em><code class="descclassname">lib.wallet.</code><code class="descname">InsufficientFundsException</code><a class="reference internal" href="_modules/lib/wallet.html#InsufficientFundsException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.wallet.InsufficientFundsException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">exceptions.Exception</span></code></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.wallet.Wallet">
+<em class="property">class </em><code class="descclassname">lib.wallet.</code><code class="descname">Wallet</code><span class="sig-paren">(</span><em>key</em>, <em>blockchain</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib/wallet.html#Wallet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.wallet.Wallet" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="lib.wallet.Wallet.balance">
+<code class="descname">balance</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib/wallet.html#Wallet.balance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.wallet.Wallet.balance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Scan unspent transaction outputs (utxo) so we know how much
+balance we’ve to spent.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.wallet.Wallet.send">
+<code class="descname">send</code><span class="sig-paren">(</span><em>amount</em>, <em>to_addr</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lib/wallet.html#Wallet.send"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.wallet.Wallet.send" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send money to the given address from this wallet.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>amount: How much value is sent
+to_addr: Address where value is transferred to.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-lib">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-lib" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">lib package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-lib.base64">lib.base64 module</a></li>
+<li><a class="reference internal" href="#module-lib.blockchain">lib.blockchain module</a></li>
+<li><a class="reference internal" href="#module-lib.rsa">lib.rsa module</a></li>
+<li><a class="reference internal" href="#module-lib.transaction">lib.transaction module</a></li>
+<li><a class="reference internal" href="#module-lib.utils">lib.utils module</a></li>
+<li><a class="reference internal" href="#module-lib.wallet">lib.wallet module</a></li>
+<li><a class="reference internal" href="#module-lib">Module contents</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/lib.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/lib.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,425 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>lib.rsa &#8212; DummyCoin  documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for lib.rsa</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This RSA implementation is based on Introduction to Algorithms 3rd ed.</span>
+<span class="sd">by Cormen, Leiserson, Rivest and Stein and is simply</span>
+<span class="sd">for educational purposes.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="k">import</span> <span class="n">floor</span><span class="p">,</span> <span class="n">log</span><span class="p">,</span> <span class="n">sqrt</span>
+<span class="kn">from</span> <span class="nn">random</span> <span class="k">import</span> <span class="n">randrange</span><span class="p">,</span> <span class="n">getrandbits</span>
+<span class="kn">from</span> <span class="nn">base64</span> <span class="k">import</span> <span class="n">Base64</span>
+
+
+<div class="viewcode-block" id="egcd"><a class="viewcode-back" href="../../lib.html#lib.rsa.egcd">[docs]</a><span class="k">def</span> <span class="nf">egcd</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Recursive version of extended euclid&#39;s algorithm</span>
+<span class="sd">    for finding greatest common divisor with coefficients</span>
+<span class="sd">    x and y.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        a: Integer</span>
+<span class="sd">        b: Integer</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Tuple (d, x, y) where d is gcd and x and y</span>
+<span class="sd">        are coefficients</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">b</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="o">=</span> <span class="n">egcd</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span> <span class="o">%</span> <span class="n">b</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">x</span> <span class="o">-</span> <span class="n">long</span><span class="p">(</span><span class="n">a</span><span class="o">/</span><span class="n">b</span><span class="p">)</span> <span class="o">*</span> <span class="n">y</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="mul_inv"><a class="viewcode-back" href="../../lib.html#lib.rsa.mul_inv">[docs]</a><span class="k">def</span> <span class="nf">mul_inv</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate multiplicative inverse.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        a: long</span>
+<span class="sd">        b: long</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        long</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="o">=</span> <span class="n">egcd</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">d</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span>
+</div>
+    <span class="k">return</span> <span class="n">x</span> <span class="o">%</span> <span class="n">b</span>
+
+
+<div class="viewcode-block" id="mod_exp"><a class="viewcode-back" href="../../lib.html#lib.rsa.mod_exp">[docs]</a><span class="k">def</span> <span class="nf">mod_exp</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Modular exponentation for big b&#39;s.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        a: long</span>
+<span class="sd">        b: long</span>
+<span class="sd">        n: long</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        long</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">long</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+
+    <span class="k">while</span> <span class="n">b</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">b</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="p">(</span><span class="n">d</span><span class="o">*</span><span class="n">a</span><span class="p">)</span> <span class="o">%</span> <span class="n">n</span>
+
+        <span class="n">b</span> <span class="o">&gt;&gt;=</span> <span class="mi">1</span>
+
+        <span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="n">a</span><span class="o">*</span><span class="n">a</span><span class="p">)</span> <span class="o">%</span> <span class="n">n</span>
+</div>
+    <span class="k">return</span> <span class="n">d</span>
+
+
+<div class="viewcode-block" id="is_prime"><a class="viewcode-back" href="../../lib.html#lib.rsa.is_prime">[docs]</a><span class="k">def</span> <span class="nf">is_prime</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Miller-Rabin tests whether our random</span>
+<span class="sd">    numbers are primes or not.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        s: how many times we try to witness the prime. 40-50</span>
+<span class="sd">           should be enough for all applications.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Boolean whether number is prime or not.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">witness</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">while</span> <span class="n">u</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">u</span> <span class="o">&gt;&gt;=</span> <span class="mi">1</span>
+            <span class="n">t</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="n">mod_exp</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
+            <span class="n">xp</span> <span class="o">=</span> <span class="n">x</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">xp</span> <span class="o">!=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">xp</span> <span class="o">!=</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="n">x</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">randrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">witness</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+</div>
+    <span class="k">return</span> <span class="kc">True</span>
+
+
+<div class="viewcode-block" id="get_random_large_prime"><a class="viewcode-back" href="../../lib.html#lib.rsa.get_random_large_prime">[docs]</a><span class="k">def</span> <span class="nf">get_random_large_prime</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns insecure large random integer.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">while</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">getrandbits</span><span class="p">(</span><span class="mi">256</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">a</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="k">if</span> <span class="n">is_prime</span><span class="p">(</span><span class="n">a</span><span class="p">):</span></div>
+            <span class="k">return</span> <span class="n">a</span>
+
+
+<div class="viewcode-block" id="RSAUtils"><a class="viewcode-back" href="../../lib.html#lib.rsa.RSAUtils">[docs]</a><span class="k">class</span> <span class="nc">RSAUtils</span><span class="p">:</span>
+<div class="viewcode-block" id="RSAUtils.export_key"><a class="viewcode-back" href="../../lib.html#lib.rsa.RSAUtils.export_key">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">export_key</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Encode key to format base64(a:b)</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            a: key number 1</span>
+<span class="sd">            b: key number 2</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Base64 encoded presentation.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="n">Base64</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">:</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">))</span>
+
+<div class="viewcode-block" id="RSAUtils.parse_key"><a class="viewcode-back" href="../../lib.html#lib.rsa.RSAUtils.parse_key">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">parse_key</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Decode key from format base64(a:b)</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data: Base64 encoded data.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Tuple with (a, b) where a and b are</span>
+<span class="sd">            keys as long.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">raw</span> <span class="o">=</span> <span class="n">Base64</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="n">raw</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="p">(</span><span class="n">long</span><span class="p">(</span><span class="n">keys</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">long</span><span class="p">(</span><span class="n">keys</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+
+
+<div class="viewcode-block" id="RSAPublicKey"><a class="viewcode-back" href="../../lib.html#lib.rsa.RSAPublicKey">[docs]</a><span class="k">class</span> <span class="nc">RSAPublicKey</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">e</span> <span class="o">=</span> <span class="n">long</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">=</span> <span class="n">long</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+
+<div class="viewcode-block" id="RSAPublicKey.load"><a class="viewcode-back" href="../../lib.html#lib.rsa.RSAPublicKey.load">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Decode public key from data</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data: RSAUtils encoded key</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            RSAPublicKey object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">e</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">RSAUtils</span><span class="o">.</span><span class="n">parse_key</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">RSAPublicKey</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></div>
+        <span class="k">return</span> <span class="n">RSAUtils</span><span class="o">.</span><span class="n">export_key</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">e</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="RSAPrivateKey"><a class="viewcode-back" href="../../lib.html#lib.rsa.RSAPrivateKey">[docs]</a><span class="k">class</span> <span class="nc">RSAPrivateKey</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">d</span> <span class="o">=</span> <span class="n">long</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">=</span> <span class="n">long</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+
+<div class="viewcode-block" id="RSAPrivateKey.load"><a class="viewcode-back" href="../../lib.html#lib.rsa.RSAPrivateKey.load">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Decode private key from data</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data: RSAUtils encoded key</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            RSAPrivateKey object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">d</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">RSAUtils</span><span class="o">.</span><span class="n">parse_key</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">RSAPrivateKey</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></div>
+        <span class="k">return</span> <span class="n">RSAUtils</span><span class="o">.</span><span class="n">export_key</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="RSAKey"><a class="viewcode-back" href="../../lib.html#lib.rsa.RSAKey">[docs]</a><span class="k">class</span> <span class="nc">RSAKey</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    RSA implementation based on CLRS.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">public_key</span><span class="p">,</span> <span class="n">priv_key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialise RSAKey</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            public_key: RSAPublicKey</span>
+<span class="sd">            private_key: RSAPrivateKey</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">public_key</span> <span class="o">=</span> <span class="n">public_key</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">priv_key</span> <span class="o">=</span> <span class="n">priv_key</span>
+
+<div class="viewcode-block" id="RSAKey.generate_key"><a class="viewcode-back" href="../../lib.html#lib.rsa.RSAKey.generate_key">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">generate_key</span><span class="p">(</span><span class="n">e</span><span class="o">=</span><span class="mi">17</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate new key</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            e: Small primary number used for public key. Default is 17.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            RSAKey object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">rp</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># Loop until gcd(e, (p-1)*(q-1)) = 1</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="n">rp</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">p</span> <span class="o">=</span> <span class="n">get_random_large_prime</span><span class="p">()</span>
+                <span class="n">q</span> <span class="o">=</span> <span class="n">get_random_large_prime</span><span class="p">()</span>
+                <span class="n">d</span> <span class="o">=</span> <span class="n">long</span><span class="p">(</span><span class="n">mul_inv</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="p">(</span><span class="n">p</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">q</span><span class="o">-</span><span class="mi">1</span><span class="p">)))</span>
+
+                <span class="n">rp</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+        <span class="n">n</span> <span class="o">=</span> <span class="n">p</span><span class="o">*</span><span class="n">q</span>
+
+        <span class="c1"># (e,n) public key</span>
+        <span class="c1"># (d,n) secret key</span>
+</div>
+        <span class="k">return</span> <span class="n">RSAKey</span><span class="p">(</span><span class="n">RSAPublicKey</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">n</span><span class="p">),</span> <span class="n">RSAPrivateKey</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span>
+
+<div class="viewcode-block" id="RSAKey.sign"><a class="viewcode-back" href="../../lib.html#lib.rsa.RSAKey.sign">[docs]</a>    <span class="k">def</span> <span class="nf">sign</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">hash</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sign hash with this key.</span>
+
+<span class="sd">        @type hash: string</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">mod_exp</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="n">c</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">priv_key</span><span class="o">.</span><span class="n">d</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">priv_key</span><span class="o">.</span><span class="n">n</span><span class="p">),</span></div>
+                   <span class="nb">hash</span><span class="p">)</span>
+
+<div class="viewcode-block" id="RSAKey.verify"><a class="viewcode-back" href="../../lib.html#lib.rsa.RSAKey.verify">[docs]</a>    <span class="k">def</span> <span class="nf">verify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">hash</span><span class="p">,</span> <span class="n">signature</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Verify hash with given signature.</span>
+
+<span class="sd">        @type hash: string</span>
+<span class="sd">        @type signature: int[]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="nb">chr</span><span class="p">(</span><span class="n">mod_exp</span><span class="p">(</span><span class="n">c</span><span class="p">,</span>
+                                            <span class="bp">self</span><span class="o">.</span><span class="n">public_key</span><span class="o">.</span><span class="n">e</span><span class="p">,</span>
+                                            <span class="bp">self</span><span class="o">.</span><span class="n">public_key</span><span class="o">.</span><span class="n">n</span><span class="p">)),</span>
+                      <span class="n">signature</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            If this raises some random exception, key is definitely invalid.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="kc">False</span>
+</div>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out</span><span class="p">)</span> <span class="o">==</span> <span class="nb">hash</span>
+
+<div class="viewcode-block" id="RSAKey.publickey"><a class="viewcode-back" href="../../lib.html#lib.rsa.RSAKey.publickey">[docs]</a>    <span class="k">def</span> <span class="nf">publickey</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns public key as a string. This means base64</span>
+<span class="sd">        encoded presentation.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">public_key</span><span class="p">)</span>
+
+<div class="viewcode-block" id="RSAKey.privatekey"><a class="viewcode-back" href="../../lib.html#lib.rsa.RSAKey.privatekey">[docs]</a>    <span class="k">def</span> <span class="nf">privatekey</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns private key as a string. This means base64</span>
+<span class="sd">        encoded presentation.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div></div>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">priv_key</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    print get_random_large_prime()</span>
+<span class="sd">    print get_random_large_prime()</span>
+<span class="sd">    print get_random_large_prime()</span>
+
+<span class="sd">    print is_prime(3)</span>
+<span class="sd">    print is_prime(4)</span>
+<span class="sd">    print is_prime(3967)</span>
+<span class="sd">    print is_prime(7691)</span>
+<span class="sd">    print is_prime(7690)</span>
+
+<span class="sd">    print mod_exp(7, 560, 561)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    bug1 = 93128803</span>
+<span class="sd">    bug2 = 272489629</span>
+
+<span class="sd">    d = long(mul_inv(17, (bug1-1) * (bug2-1)))</span>
+
+<span class="sd">    print &quot;d&quot;, d</span>
+
+<span class="sd">    key = RSAKey.generate_key()</span>
+
+<span class="sd">    ver = key.verify(&quot;Jorma&quot;, key.sign(&quot;Jorma&quot;))</span>
+
+<span class="sd">    print ver&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">get_random_odd_number</span><span class="p">(</span><span class="n">bits</span><span class="p">):</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">getrandbits</span><span class="p">(</span><span class="n">bits</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">r</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">r</span>
+
+    <span class="n">tries</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1000</span><span class="p">):</span>
+        <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">while</span> <span class="ow">not</span> <span class="n">is_prime</span><span class="p">(</span><span class="n">getrandbits</span><span class="p">(</span><span class="mi">256</span><span class="p">),</span> <span class="n">s</span><span class="o">=</span><span class="mi">40</span><span class="p">):</span>
+            <span class="n">j</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">tries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
+
+    <span class="sd">&quot;&quot;&quot;print (&quot;Avg Tries: &quot;, (sum(tries) / float(len(tries))))&quot;&quot;&quot;</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

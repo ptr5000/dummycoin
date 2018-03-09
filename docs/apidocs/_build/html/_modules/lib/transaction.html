@@ -1,0 +1,270 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>lib.transaction &#8212; DummyCoin  documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for lib.transaction</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Transactions</span>
+
+<span class="sd">References:</span>
+
+<span class="sd">https://bitcoin.org/en/developer-guide#transactions</span>
+<span class="sd">https://github.com/bitcoinbook/bitcoinbook/blob/second_edition/ch02.asciidoc</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">utils</span> <span class="k">import</span> <span class="n">sha1</span><span class="p">,</span> <span class="n">sign</span><span class="p">,</span> <span class="n">generate_key</span>
+<span class="kn">import</span> <span class="nn">uuid</span>
+
+
+<div class="viewcode-block" id="UnauthorizedTxException"><a class="viewcode-back" href="../../lib.html#lib.transaction.UnauthorizedTxException">[docs]</a><span class="k">class</span> <span class="nc">UnauthorizedTxException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Raised when transaction validation fails.</span>
+<span class="sd">    &quot;&quot;&quot;</span></div>
+    <span class="k">pass</span>
+
+
+<div class="viewcode-block" id="TxException"><a class="viewcode-back" href="../../lib.html#lib.transaction.TxException">[docs]</a><span class="k">class</span> <span class="nc">TxException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    General transaction exception.</span>
+<span class="sd">    &quot;&quot;&quot;</span></div>
+    <span class="k">pass</span>
+
+
+<div class="viewcode-block" id="TxType"><a class="viewcode-back" href="../../lib.html#lib.transaction.TxType">[docs]</a><span class="k">class</span> <span class="nc">TxType</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    TxType defines the supported transactions types.</span>
+
+<span class="sd">    NORMAL: transaction is a transaction between addresses.</span>
+<span class="sd">    COINBASE: transaction is a reward from mining.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">NORMAL</span> <span class="o">=</span> <span class="mi">0</span></div>
+    <span class="n">COINBASE</span> <span class="o">=</span> <span class="mi">1</span>
+
+
+<div class="viewcode-block" id="TxOut"><a class="viewcode-back" href="../../lib.html#lib.transaction.TxOut">[docs]</a><span class="k">class</span> <span class="nc">TxOut</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Transaction data that carries the output information, i.e. how much is</span>
+<span class="sd">    spent and who it is transferred to.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">address</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize TxOut</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value: how much we transfer value in this transaction.</span>
+<span class="sd">            address: to whom we transfer the value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">address</span> <span class="o">=</span> <span class="n">address</span>
+
+<div class="viewcode-block" id="TxOut.get_state"><a class="viewcode-back" href="../../lib.html#lib.transaction.TxOut.get_state">[docs]</a>    <span class="k">def</span> <span class="nf">get_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns current state as string.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></div>
+        <span class="k">return</span> <span class="s2">&quot;out </span><span class="si">{}</span><span class="s2"> =&gt; ...</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">[</span><span class="o">-</span><span class="mi">25</span><span class="p">:])</span>
+
+
+<div class="viewcode-block" id="TxIn"><a class="viewcode-back" href="../../lib.html#lib.transaction.TxIn">[docs]</a><span class="k">class</span> <span class="nc">TxIn</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Transactions that contain the unspent value. I.e. the source where the</span>
+<span class="sd">    value is transferred from to all the given outputs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prev_outtx</span><span class="p">,</span> <span class="n">signature</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize TxIn</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            prev_outtx: Id of previous transaction</span>
+<span class="sd">            signature: Signature for validation</span>
+<span class="sd">            address: Where this is transferred to</span>
+<span class="sd">            value: How much value this transaction input contains</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prev_outtx</span> <span class="o">=</span> <span class="n">prev_outtx</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">signature</span> <span class="o">=</span> <span class="n">signature</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">address</span> <span class="o">=</span> <span class="n">address</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
+
+<div class="viewcode-block" id="TxIn.get_state"><a class="viewcode-back" href="../../lib.html#lib.transaction.TxIn.get_state">[docs]</a>    <span class="k">def</span> <span class="nf">get_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns current state as string.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">prev_outtx</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;in </span><span class="si">{}</span><span class="s2">(</span><span class="si">{}</span><span class="s2">) ...</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">prev_outtx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">[</span><span class="o">-</span><span class="mi">25</span><span class="p">:])</span>
+
+
+<div class="viewcode-block" id="Transaction"><a class="viewcode-back" href="../../lib.html#lib.transaction.Transaction">[docs]</a><span class="k">class</span> <span class="nc">Transaction</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Transaction is a transfer of coin value.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">priv_key</span><span class="p">,</span> <span class="n">txtype</span><span class="o">=</span><span class="n">TxType</span><span class="o">.</span><span class="n">NORMAL</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialise Transaction</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            priv_key: Private key of the sender</span>
+<span class="sd">            txtype: TxType i.e. whether this is normal tx or coinbase.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hash</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">priv_key</span> <span class="o">=</span> <span class="n">priv_key</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">txtype</span> <span class="o">=</span> <span class="n">txtype</span>
+
+        <span class="k">if</span> <span class="n">txtype</span> <span class="o">==</span> <span class="n">TxType</span><span class="o">.</span><span class="n">COINBASE</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">priv_key</span> <span class="o">=</span> <span class="s2">&quot;COINBASE&quot;</span>
+
+<div class="viewcode-block" id="Transaction.finalize"><a class="viewcode-back" href="../../lib.html#lib.transaction.Transaction.finalize">[docs]</a>    <span class="k">def</span> <span class="nf">finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate hash for this transaction when it&#39;s done.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">vin</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">get_state</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="p">]</span>
+        <span class="n">vout</span> <span class="o">=</span> <span class="p">[</span><span class="n">o</span><span class="o">.</span><span class="n">get_state</span><span class="p">()</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">]</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hash</span> <span class="o">=</span> <span class="n">sha1</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">vin</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">vout</span><span class="p">))</span>
+
+<div class="viewcode-block" id="Transaction.add_out"><a class="viewcode-back" href="../../lib.html#lib.transaction.Transaction.add_out">[docs]</a>    <span class="k">def</span> <span class="nf">add_out</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">to_address</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add output transaction into this transaction</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value: Value of the transaction input</span>
+<span class="sd">            to_address: To whom the transaction is addressed to.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">TxOut</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">to_address</span><span class="p">))</span>
+
+<div class="viewcode-block" id="Transaction.add_in"><a class="viewcode-back" href="../../lib.html#lib.transaction.Transaction.add_in">[docs]</a>    <span class="k">def</span> <span class="nf">add_in</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prev_outtx</span><span class="p">,</span> <span class="n">signature</span><span class="p">,</span> <span class="n">from_address</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add input transaction into this transaction.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            prev_outtx: Id of previous transaction</span>
+<span class="sd">            signature: Signature for validation</span>
+<span class="sd">            address: Where this is transferred to</span>
+<span class="sd">            value: How much value this transaction input contains</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">TxIn</span><span class="p">(</span><span class="n">prev_outtx</span><span class="p">,</span> <span class="n">signature</span><span class="p">,</span> <span class="n">from_address</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+
+<div class="viewcode-block" id="Transaction.is_coinbase"><a class="viewcode-back" href="../../lib.html#lib.transaction.Transaction.is_coinbase">[docs]</a>    <span class="k">def</span> <span class="nf">is_coinbase</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns whether this is a coinbase (reward) transaction or not.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">txtype</span> <span class="o">==</span> <span class="n">TxType</span><span class="o">.</span><span class="n">COINBASE</span>
+
+<div class="viewcode-block" id="Transaction.get_ledger"><a class="viewcode-back" href="../../lib.html#lib.transaction.Transaction.get_ledger">[docs]</a>    <span class="k">def</span> <span class="nf">get_ledger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return outputs and inputs and their value. This can</span>
+<span class="sd">        be used to calculate balance from unspent transaction</span>
+<span class="sd">        outputs (utxo) for given address.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            address: Address string</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Array of transactions and their hash and value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ledger</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">debit</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;hash&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hash</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">value</span><span class="p">},</span>
+                    <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">address</span> <span class="o">==</span> <span class="n">address</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">))</span>
+        <span class="n">credit</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;hash&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hash</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="o">-</span><span class="n">x</span><span class="o">.</span><span class="n">value</span><span class="p">},</span>
+                     <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">address</span> <span class="o">==</span> <span class="n">address</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="p">))</span>
+
+        <span class="n">ledger</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">debit</span><span class="p">)</span>
+        <span class="n">ledger</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">credit</span><span class="p">)</span>
+</div>
+        <span class="k">return</span> <span class="n">ledger</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">priv_key</span> <span class="o">==</span> <span class="s2">&quot;COINBASE&quot;</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="s2">&quot;  sender: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">priv_key</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="s2">&quot;  sender: ...&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">priv_key</span><span class="o">.</span><span class="n">publickey</span><span class="p">()[</span><span class="o">-</span><span class="mi">25</span><span class="p">:])</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">out</span> <span class="o">+=</span> <span class="s2">&quot;  hash: &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">hash</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">out</span> <span class="o">+=</span> <span class="s2">&quot;  timestamp: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timestamp</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">+=</span> <span class="s2">&quot;    &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">+=</span> <span class="s2">&quot;    &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+</div>
+        <span class="k">return</span> <span class="n">out</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
