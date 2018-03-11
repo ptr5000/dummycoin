@@ -259,9 +259,13 @@ class RSAKey:
 
     def sign(self, hash):
         """
-        Sign hash with this key.
+        Sign hash with given key.
 
-        @type hash: string
+        Args:
+            hash: string
+
+        Returns:
+            Signature as array of integers
         """
         return map(lambda c: mod_exp(ord(c), self.priv_key.d, self.priv_key.n),
                    hash)
@@ -270,8 +274,12 @@ class RSAKey:
         """
         Verify hash with given signature.
 
-        @type hash: string
-        @type signature: int[]
+        Args:
+            hash: string
+            signature: array of integers
+        
+        Returns:
+            Boolean whether signature is valid.
         """
         out = []
 
